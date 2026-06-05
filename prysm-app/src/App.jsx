@@ -376,6 +376,14 @@ function WizardView({
 }) {
   const [cardIndex, setCardIndex] = useState(1);
   const [checkedQuestions, setCheckedQuestions] = useState({});
+  const [configCollapsed, setConfigCollapsed] = useState(false);
+
+  // Auto-collapse setup drawer when user starts the assessment questions or recommendations
+  React.useEffect(() => {
+    if (cardIndex > 1) {
+      setConfigCollapsed(true);
+    }
+  }, [cardIndex]);
 
   const handleToggleQuestion = (index) => {
     setCheckedQuestions((prev) => ({
@@ -395,6 +403,7 @@ function WizardView({
   const handleReset = () => {
     setCardIndex(1);
     setCheckedQuestions({});
+    setConfigCollapsed(false); // expand the setup panel when resetting
   };
 
   const steps = [
@@ -404,101 +413,150 @@ function WizardView({
   ];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-fade-in">
       {/* ── TOP COMPACT CONFIG PANEL ── */}
-      <Card className="bg-zinc-900/90 border border-zinc-800 p-4 space-y-3 shadow-lg">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between">
-          <div className="flex-1">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Client Setting (Audience)</label>
-            <div className="relative">
-              <select 
-                value={audienceId}
-                onChange={(e) => {
-                  setAudienceId(e.target.value);
-                  setCheckedQuestions({});
-                }}
-                className="w-full appearance-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-emerald-400 cursor-pointer pr-8"
+      <Card className="bg-zinc-900/90 border border-zinc-800 p-4 shadow-lg transition duration-200">
+        {configCollapsed ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 overflow-hidden">
+              <span className="text-xl shrink-0">{iconMap[audienceId]}</span>
+              <div className="min-w-0">
+                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Active Client Setup</p>
+                <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-zinc-200">
+                  <span className="font-medium truncate">{audience.label}</span>
+                  <span className="text-zinc-600">•</span>
+                  <span className="flex items-center gap-1 capitalize">
+                    <span className={cx("h-2 w-2 rounded-full", 
+                      score === "red" ? "bg-red-500" :
+                      score === "orange" ? "bg-orange-500" :
+                      score === "yellow" ? "bg-yellow-400" :
+                      score === "green" ? "bg-emerald-500" :
+                      score === "blue" ? "bg-cyan-500" : "bg-purple-500"
+                    )} />
+                    {score}
+                  </span>
+                  {selectedGoals.length > 0 && (
+                    <>
+                      <span className="text-zinc-600">•</span>
+                      <span className="text-zinc-400 truncate max-w-[150px]">{selectedGoals.join(", ")}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            <button 
+              onClick={() => setConfigCollapsed(false)}
+              className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:border-zinc-700 hover:bg-zinc-900 transition shrink-0 ml-2 cursor-pointer"
+            >
+              Edit Setup
+            </button>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between pb-1 border-b border-zinc-850/50">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Configure Scan Presentation</span>
+              <button 
+                onClick={() => setConfigCollapsed(true)}
+                className="text-[10px] font-semibold text-zinc-500 hover:text-zinc-300 transition cursor-pointer"
               >
-                {audiences.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {iconMap[item.id]} {item.label}
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 text-[10px]">
-                ▼
+                Collapse ✕
+              </button>
+            </div>
+            
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between">
+              <div className="flex-1">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Client Setting (Audience)</label>
+                <div className="relative">
+                  <select 
+                    value={audienceId}
+                    onChange={(e) => {
+                      setAudienceId(e.target.value);
+                      setCheckedQuestions({});
+                    }}
+                    className="w-full appearance-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-emerald-400 cursor-pointer pr-8"
+                  >
+                    {audiences.map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {iconMap[item.id]} {item.label}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 text-[10px]">
+                    ▼
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex-1 sm:ml-4">
+                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Presenter Name</label>
+                <input
+                  type="text"
+                  value={presenterName}
+                  onChange={(e) => onPresenterNameChange(e.target.value)}
+                  placeholder="Presenter Name"
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-emerald-400 animate-fade-in"
+                />
+              </div>
+            </div>
+
+            {/* Scan Color Row */}
+            <div>
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Scan Score Color</label>
+              <div className="flex gap-1.5 bg-zinc-950 border border-zinc-850 rounded-xl p-1.5 overflow-x-auto no-scrollbar">
+                {Object.keys(scoreGuidance).map((item) => {
+                  const bgColors = {
+                    red: "bg-red-500",
+                    orange: "bg-orange-500",
+                    yellow: "bg-yellow-400",
+                    green: "bg-emerald-500",
+                    blue: "bg-cyan-500",
+                    purple: "bg-purple-500"
+                  };
+                  const isSelected = score === item;
+                  return (
+                    <button
+                      key={item}
+                      onClick={() => setScore(item)}
+                      className={cx(
+                        "flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium capitalize border transition cursor-pointer shrink-0",
+                        isSelected 
+                          ? "border-emerald-400 bg-emerald-400/10 text-emerald-300 font-semibold" 
+                          : "border-transparent bg-transparent text-zinc-500 hover:text-zinc-300"
+                      )}
+                    >
+                      <span className={cx("h-2.5 w-2.5 rounded-full", bgColors[item])} />
+                      {item}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Goals Pill Row */}
+            <div>
+              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Client Goals</label>
+              <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+                {goals.map((goal) => {
+                  const isSelected = selectedGoals.includes(goal);
+                  return (
+                    <button
+                      key={goal}
+                      onClick={() => toggleGoal(goal)}
+                      className={cx(
+                        "rounded-full px-2.5 py-1 text-[10px] border transition cursor-pointer shrink-0",
+                        isSelected 
+                          ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-semibold" 
+                          : "border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700"
+                      )}
+                    >
+                      {goal} {isSelected && "✓"}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
-          
-          <div className="flex-1 sm:ml-4">
-            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Presenter Name</label>
-            <input
-              type="text"
-              value={presenterName}
-              onChange={(e) => onPresenterNameChange(e.target.value)}
-              placeholder="Presenter Name"
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-emerald-400 animate-fade-in"
-            />
-          </div>
-        </div>
-
-        {/* Scan Color Row */}
-        <div>
-          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Scan Score Color</label>
-          <div className="flex gap-1.5 bg-zinc-950 border border-zinc-850 rounded-xl p-1.5 overflow-x-auto no-scrollbar">
-            {Object.keys(scoreGuidance).map((item) => {
-              const bgColors = {
-                red: "bg-red-500",
-                orange: "bg-orange-500",
-                yellow: "bg-yellow-400",
-                green: "bg-emerald-500",
-                blue: "bg-cyan-500",
-                purple: "bg-purple-500"
-              };
-              const isSelected = score === item;
-              return (
-                <button
-                  key={item}
-                  onClick={() => setScore(item)}
-                  className={cx(
-                    "flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium capitalize border transition cursor-pointer shrink-0",
-                    isSelected 
-                      ? "border-emerald-400 bg-emerald-400/10 text-emerald-300 font-semibold" 
-                      : "border-transparent bg-transparent text-zinc-500 hover:text-zinc-300"
-                  )}
-                >
-                  <span className={cx("h-2.5 w-2.5 rounded-full", bgColors[item])} />
-                  {item}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Goals Pill Row */}
-        <div>
-          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Client Goals</label>
-          <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
-            {goals.map((goal) => {
-              const isSelected = selectedGoals.includes(goal);
-              return (
-                <button
-                  key={goal}
-                  onClick={() => toggleGoal(goal)}
-                  className={cx(
-                    "rounded-full px-2.5 py-1 text-[10px] border transition cursor-pointer shrink-0",
-                    isSelected 
-                      ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-semibold" 
-                      : "border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700"
-                  )}
-                >
-                  {goal} {isSelected && "✓"}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        )}
       </Card>
 
       {/* ── CUE CARD DISPLAY ── */}
@@ -517,21 +575,46 @@ function WizardView({
         </div>
 
         {/* Card Content Block */}
-        <div className="min-h-[260px] flex flex-col justify-between">
+        <div className="min-h-[280px] flex flex-col justify-between">
           <div className="space-y-4">
             
             {/* CARD 1: THE OPENING HOOK */}
             {cardIndex === 1 && (
               <div className="space-y-4 animate-fade-in">
-                <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-4 space-y-2">
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Conversation Context</p>
-                  <p className="text-zinc-200 text-xs leading-relaxed font-sans">{audience.frame}</p>
+                {/* Step 1: Compliance Disclaimer */}
+                <div className="space-y-1">
+                  <span className="inline-block text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                    Step 1: Frame the Scanner
+                  </span>
+                  <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-3.5 shadow-inner">
+                    <p className="text-zinc-200 text-xs md:text-sm font-medium leading-relaxed font-sans">
+                      "Before I explain anything, <span className="text-emerald-300 font-semibold">this is not a medical test</span> and I'm not here to diagnose anything. Think of it as a <span className="text-emerald-300 font-semibold">nutrition mirror</span>. It gives us a quick look at your carotenoid trend, which reflects how your food, supplements, and lifestyle habits show up."
+                    </p>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Say This (Opener):</p>
-                  <p className="text-zinc-100 text-lg font-sans font-medium leading-relaxed bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 shadow-inner">
-                    "{audience.opener}"
-                  </p>
+
+                {/* Step 2: The Scan Action */}
+                <div className="space-y-1">
+                  <span className="inline-block text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                    Step 2: Run Scan
+                  </span>
+                  <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-3 shadow-inner">
+                    <p className="text-zinc-200 text-xs leading-relaxed font-sans">
+                      "Let's do a quick <span className="text-emerald-300 font-semibold">15-second scan first</span>."
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3: Audience Hook Opener */}
+                <div className="space-y-1">
+                  <span className="inline-block text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                    Step 3: Audience Hook ({audience.label})
+                  </span>
+                  <div className="bg-emerald-400/5 border border-emerald-500/15 rounded-xl p-4 shadow-inner">
+                    <p className="text-zinc-100 text-sm md:text-base font-sans font-semibold leading-relaxed">
+                      "{audience.opener}"
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
@@ -539,8 +622,15 @@ function WizardView({
             {/* CARD 2: TAILORED QUESTIONS */}
             {cardIndex === 2 && (
               <div className="space-y-3 animate-fade-in">
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Ask These Questions (Check off as you ask):</p>
-                <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                {/* Intro Script */}
+                <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-3.5 shadow-inner">
+                  <p className="text-zinc-200 text-xs md:text-sm font-medium leading-relaxed font-sans">
+                    "Your score is in the <span className="text-emerald-300 font-semibold capitalize">{scoreTone[score]}</span> today. I would not overcomplicate this. To help personalize this, let me ask you a few questions..."
+                  </p>
+                </div>
+
+                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Ask These Questions (Check off as you speak):</p>
+                <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                   {audience.questions.map((q, idx) => {
                     const isChecked = !!checkedQuestions[idx];
                     return (
@@ -550,8 +640,8 @@ function WizardView({
                         className={cx(
                           "w-full flex items-start gap-3 rounded-xl border p-3 text-left text-xs transition cursor-pointer",
                           isChecked 
-                            ? "border-emerald-500 bg-emerald-500/10 text-zinc-100 font-semibold animate-pulse" 
-                            : "border-zinc-800 bg-zinc-950/60 text-zinc-300 hover:border-zinc-700"
+                            ? "border-emerald-500/30 bg-emerald-500/5 text-zinc-400" 
+                            : "border-zinc-800 bg-zinc-950/60 text-zinc-200 hover:border-zinc-700"
                         )}
                       >
                         <span className={cx(
@@ -560,11 +650,11 @@ function WizardView({
                         )}>
                           ✓
                         </span>
-                        <div>
-                          <span className={cx("font-bold text-[10px] uppercase tracking-wider block mb-0.5", isChecked ? "text-emerald-400" : "text-zinc-500")}>
+                        <div className="min-w-0">
+                          <span className={cx("font-bold text-[9px] uppercase tracking-wider block mb-0.5", isChecked ? "text-zinc-500" : "text-emerald-400")}>
                             Question {idx + 1}
                           </span>
-                          <p className={cx("font-sans leading-relaxed", isChecked && "line-through text-zinc-500")}>{q}</p>
+                          <p className={cx("font-sans leading-relaxed text-xs", isChecked && "line-through text-zinc-500")}>{q}</p>
                         </div>
                       </button>
                     );
@@ -573,38 +663,37 @@ function WizardView({
               </div>
             )}
 
-            {/* CARD 3: THE FIT & CLOSE */}
+            {/* CARD 3: THE RECOMMENDATION & CLOSE */}
             {cardIndex === 3 && (
-              <div className="space-y-3 animate-fade-in max-h-[300px] overflow-y-auto pr-1">
-                {/* Score meaning */}
-                <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3.5 space-y-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <span className={cx("h-2.5 w-2.5 rounded-full shadow-inner", 
-                      score === "red" ? "bg-red-500" :
-                      score === "orange" ? "bg-orange-500" :
-                      score === "yellow" ? "bg-yellow-400" :
-                      score === "green" ? "bg-emerald-500" :
-                      score === "blue" ? "bg-cyan-500" : "bg-purple-500"
-                    )} />
-                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Score Meaning ({score})</p>
-                  </div>
-                  <p className="text-zinc-200 text-xs font-sans leading-relaxed">{scoreGuidance[score]}</p>
+              <div className="space-y-3 animate-fade-in max-h-[340px] overflow-y-auto pr-1">
+                {/* Closing Script */}
+                <div className="bg-emerald-400/5 border border-emerald-500/10 rounded-xl p-4 space-y-2">
+                  <span className="inline-block text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                    Closing Explanation (Say This)
+                  </span>
+                  <p className="text-zinc-100 text-xs md:text-sm font-sans leading-relaxed">
+                    "Here is the simple read: your score gives us a starting point. The goal is not to shame the number. The goal is to pick one or two habits, support them if needed, and rescan so you can see progress."
+                  </p>
+                  <p className="text-zinc-100 text-xs md:text-sm font-sans leading-relaxed">
+                    "Based on your setting and goals, I would suggest starting with: <span className="text-emerald-300 font-semibold">{recommendations.slice(0, 3).join(", ")}</span>."
+                  </p>
+                  <p className="text-zinc-100 text-xs md:text-sm font-sans leading-relaxed">
+                    "The next step is simple: try the plan for 30 days, rescan, and see what changed."
+                  </p>
                 </div>
 
-                {/* Recommendations */}
-                <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3.5 space-y-2">
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Possible Product Fit</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {recommendations.map((item) => (
-                      <span key={item} className="bg-zinc-800 text-zinc-300 rounded px-2.5 py-1 text-[10px] border border-zinc-700">{item}</span>
-                    ))}
+                <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
+                  {/* Score meaning detail */}
+                  <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3 space-y-1">
+                    <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Score Meaning ({score})</p>
+                    <p className="text-zinc-300 text-[11px] font-sans leading-relaxed">{scoreGuidance[score]}</p>
                   </div>
-                </div>
 
-                {/* Next Step */}
-                <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3.5 space-y-1.5">
-                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Recommended Next Step</p>
-                  <p className="text-zinc-200 text-xs font-sans leading-relaxed">{audience.nextStep}</p>
+                  {/* Next Step detail */}
+                  <div className="rounded-xl bg-zinc-950 border border-zinc-855 p-3 space-y-1">
+                    <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Next Action</p>
+                    <p className="text-zinc-300 text-[11px] font-sans leading-relaxed">{audience.nextStep}</p>
+                  </div>
                 </div>
               </div>
             )}
@@ -641,7 +730,7 @@ function WizardView({
                 </button>
                 <button
                   onClick={handleReset}
-                  className="rounded-xl border border-zinc-850 bg-zinc-900 px-3 py-2.5 text-center text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition cursor-pointer"
+                  className="rounded-xl border border-zinc-855 bg-zinc-900 px-3 py-2.5 text-center text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition cursor-pointer"
                 >
                   Reset
                 </button>
