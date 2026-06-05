@@ -279,14 +279,15 @@ function LoginView({ onLogin }) {
     if (email.includes("@") && password.length >= 4) {
       const name = email.split("@")[0];
       const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
-      onLogin({ email, name: capitalized });
+      const role = email.toLowerCase().includes("manager") ? "manager" : "presenter";
+      onLogin({ email, name: capitalized, role });
     } else {
       setError("Please enter a valid email and a password (min. 4 characters).");
     }
   };
 
   const handleDemoLogin = () => {
-    onLogin({ email: "bobby@prysmpipeline.com", name: "Bobby" });
+    onLogin({ email: "bobby@prysmpipeline.com", name: "Bobby", role: "presenter" });
   };
 
   return (
@@ -341,12 +342,20 @@ function LoginView({ onLogin }) {
             <span className="relative bg-zinc-900/80 px-3 text-xs text-zinc-500 uppercase">Or bypass for demo</span>
           </div>
 
-          <button 
-            onClick={handleDemoLogin}
-            className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-zinc-300 hover:border-zinc-600 transition duration-200 cursor-pointer"
-          >
-            Demo Presenter Login
-          </button>
+          <div className="space-y-2.5">
+            <button 
+              onClick={handleDemoLogin}
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm font-semibold text-zinc-300 hover:border-zinc-600 transition duration-200 cursor-pointer animate-fade-in"
+            >
+              Demo Presenter Login
+            </button>
+            <button 
+              onClick={() => onLogin({ email: "manager@prysmpipeline.com", name: "Manager", role: "manager" })}
+              className="w-full rounded-xl border border-emerald-500/20 bg-emerald-550/10 px-4 py-3 text-sm font-semibold text-emerald-400 hover:bg-emerald-500/20 hover:border-emerald-500/40 transition duration-200 cursor-pointer shadow-sm shadow-emerald-400/5 animate-fade-in"
+            >
+              Demo Manager Login
+            </button>
+          </div>
         </Card>
       </div>
     </main>
@@ -744,6 +753,330 @@ function WizardView({
   );
 }
 
+function ManagerDashboardView({
+  currentUser,
+  pipeline,
+  presenterList,
+  onLogout,
+  onViewCompanion,
+  onDeleteClient,
+  onStatusChange
+}) {
+  const [selectedPresenterFilter, setSelectedPresenterFilter] = useState("all");
+  const [selectedColorFilter, setSelectedColorFilter] = useState("all");
+
+  const filteredClients = useMemo(() => {
+    return pipeline.filter(c => {
+      const matchPresenter = selectedPresenterFilter === "all" || c.presenter === selectedPresenterFilter;
+      const matchColor = selectedColorFilter === "all" || c.score === selectedColorFilter;
+      return matchPresenter && matchColor;
+    });
+  }, [pipeline, selectedPresenterFilter, selectedColorFilter]);
+
+  const totalTeamScans = presenterList.reduce((acc, p) => acc + p.scans, 0);
+  const totalSavedClients = pipeline.length;
+  const teamConversionRate = totalTeamScans > 0 ? Math.round((totalSavedClients / totalTeamScans) * 100) : 0;
+  
+  const collectiveGoal = presenterList.reduce((acc, p) => acc + p.scanGoal, 0);
+  const goalPercentage = Math.min(100, Math.round((totalSavedClients / collectiveGoal) * 100));
+
+  const scoreCounts = pipeline.reduce((acc, item) => {
+    acc[item.score] = (acc[item.score] || 0) + 1;
+    return acc;
+  }, {});
+
+  const getPresenterClientCount = (name) => {
+    return pipeline.filter(c => c.presenter === name).length;
+  };
+
+  const iconMap = {
+    gym_trainer: "🏋️",
+    athlete_event: "⚡",
+    bni_business: "🏢",
+    school_parent: "🎓",
+    salon_spa: "✨",
+    eye_dental_chiro: "👁️",
+    yoga_wellness: "🧘",
+    health_restaurant: "🥗",
+    scanner_builder: "🤝"
+  };
+
+  return (
+    <div className="space-y-6 animate-fade-in text-zinc-50">
+      {/* Header banner */}
+      <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-4">
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Badge active={true}>Corporate Manager Mode</Badge>
+            <span className="text-xs text-zinc-500">Company: Prysm Corporate Operations</span>
+          </div>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">Manager Dashboard</h1>
+          <p className="max-w-3xl text-sm text-zinc-300">Measure sales performance, track conversion analytics, and audit the client pipeline.</p>
+        </div>
+        <button 
+          onClick={onLogout}
+          className="rounded-xl border border-zinc-800 bg-zinc-900/80 px-5 py-3 text-sm font-bold text-red-400 hover:bg-red-950/20 hover:border-red-900/30 transition cursor-pointer shadow-sm self-start md:self-center"
+        >
+          Logout Account
+        </button>
+      </section>
+
+      {/* Team Metrics Overview */}
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-4">
+        <Card className="p-5 flex flex-col justify-between bg-zinc-900/50">
+          <div>
+            <p className="text-zinc-400 text-sm font-medium">Total Team Scans</p>
+            <p className="text-4xl font-bold text-zinc-50 mt-1">{totalTeamScans}</p>
+          </div>
+          <span className="text-xs text-zinc-500 mt-3 block">Total presentation touchpoints</span>
+        </Card>
+
+        <Card className="p-5 flex flex-col justify-between bg-zinc-900/50">
+          <div>
+            <p className="text-zinc-400 text-sm font-medium">Total Saved Clients</p>
+            <p className="text-4xl font-bold text-emerald-400 mt-1">{totalSavedClients}</p>
+          </div>
+          <span className="text-xs text-zinc-500 mt-3 block">Total database conversions</span>
+        </Card>
+
+        <Card className="p-5 flex flex-col justify-between bg-zinc-900/50">
+          <div>
+            <p className="text-zinc-400 text-sm font-medium">Team Conversion Rate</p>
+            <p className="text-4xl font-bold text-zinc-50 mt-1">{teamConversionRate}%</p>
+          </div>
+          <span className="text-xs text-zinc-500 mt-3 block">Scans converted to clients</span>
+        </Card>
+
+        <Card className="p-5 flex flex-col justify-between bg-zinc-900/50">
+          <div>
+            <p className="text-zinc-400 text-sm font-medium">Corporate Target Progress</p>
+            <div className="flex items-baseline justify-between mt-1">
+              <p className="text-3xl font-bold text-zinc-50">{totalSavedClients} / {collectiveGoal}</p>
+              <span className="text-sm font-semibold text-emerald-400">{goalPercentage}%</span>
+            </div>
+            <div className="w-full bg-zinc-950 rounded-full h-2 mt-3 overflow-hidden border border-zinc-800">
+              <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${goalPercentage}%` }}></div>
+            </div>
+          </div>
+          <span className="text-xs text-zinc-500 mt-2 block">Team collective monthly target</span>
+        </Card>
+      </div>
+
+      {/* Salesperson Leaderboard */}
+      <Card className="overflow-hidden">
+        <div className="p-5 border-b border-zinc-850 bg-zinc-900/30">
+          <h2 className="text-xl font-bold text-zinc-50">Salesperson Performance Leaderboard</h2>
+          <p className="text-xs text-zinc-400">Track raw activity, client pipeline conversions, and target achievements.</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-zinc-800 bg-zinc-950 text-zinc-400 uppercase text-[10px] tracking-wider font-semibold">
+                <th className="p-4">Salesperson</th>
+                <th className="p-4">Scan Goal Progress</th>
+                <th className="p-4">Saved Clients</th>
+                <th className="p-4">Conversion Rate</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-900">
+              {presenterList.map(p => {
+                const clientsCount = getPresenterClientCount(p.name);
+                const convRate = p.scans > 0 ? Math.round((clientsCount / p.scans) * 100) : 0;
+                const progressPercentage = Math.min(100, Math.round((p.scans / p.scanGoal) * 100));
+                
+                // Determine status badge
+                let statusText = "Needs Support";
+                let statusClass = "bg-red-500/10 text-red-400 border border-red-500/20";
+                if (clientsCount >= p.scanGoal || progressPercentage >= 100) {
+                  statusText = "Goal Met";
+                  statusClass = "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                } else if (convRate >= 15) {
+                  statusText = "On Track";
+                  statusClass = "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20";
+                }
+
+                return (
+                  <tr key={p.name} className="hover:bg-zinc-900/20 transition">
+                    <td className="p-4">
+                      <p className="font-bold text-zinc-100">{p.name}</p>
+                      <p className="text-xs text-zinc-500">{p.email}</p>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs font-semibold text-zinc-350 w-12">{p.scans} / {p.scanGoal}</span>
+                        <div className="flex-1 max-w-[150px] bg-zinc-950 rounded-full h-1.5 overflow-hidden border border-zinc-900">
+                          <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${progressPercentage}%` }}></div>
+                        </div>
+                        <span className="text-[10px] text-zinc-500 font-semibold">{progressPercentage}%</span>
+                      </div>
+                    </td>
+                    <td className="p-4 font-bold text-zinc-100">{clientsCount}</td>
+                    <td className="p-4 font-semibold text-zinc-300">{convRate}%</td>
+                    <td className="p-4">
+                      <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-bold ${statusClass}`}>
+                        {statusText}
+                      </span>
+                    </td>
+                    <td className="p-4 text-center">
+                      <button
+                        onClick={() => onViewCompanion(p)}
+                        className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10 transition cursor-pointer"
+                      >
+                        👁️ View Companion
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      {/* Global client database with filters */}
+      <Card className="overflow-hidden">
+        <div className="p-5 border-b border-zinc-850 bg-zinc-900/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-zinc-50">Global Client Pipeline Database</h2>
+            <p className="text-xs text-zinc-400 font-medium">Audit saved carotenoid scores, goals, and offered products across the entire company.</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Filter by salesperson */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-500 font-bold uppercase tracking-wider">Salesperson:</span>
+              <select
+                value={selectedPresenterFilter}
+                onChange={(e) => setSelectedPresenterFilter(e.target.value)}
+                className="bg-zinc-950 text-zinc-300 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs outline-none focus:border-emerald-400 transition cursor-pointer"
+              >
+                <option value="all">All Salespeople</option>
+                {presenterList.map(p => (
+                  <option key={p.name} value={p.name}>{p.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Filter by scan color */}
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-zinc-500 font-bold uppercase tracking-wider">Scan Color:</span>
+              <select
+                value={selectedColorFilter}
+                onChange={(e) => setSelectedColorFilter(e.target.value)}
+                className="bg-zinc-950 text-zinc-300 border border-zinc-800 rounded-xl px-3 py-1.5 text-xs outline-none focus:border-emerald-400 transition cursor-pointer"
+              >
+                <option value="all">All Colors</option>
+                <option value="red">Red</option>
+                <option value="orange">Orange</option>
+                <option value="yellow">Yellow</option>
+                <option value="green">Green</option>
+                <option value="blue">Blue</option>
+                <option value="purple">Purple</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-zinc-800 bg-zinc-950 text-zinc-400 uppercase text-[10px] tracking-wider font-semibold">
+                <th className="p-4">Client Name</th>
+                <th className="p-4">Presenter</th>
+                <th className="p-4">Audience</th>
+                <th className="p-4">Score</th>
+                <th className="p-4">Goals</th>
+                <th className="p-4">Products Offered</th>
+                <th className="p-4">Scan Date</th>
+                <th className="p-4">Status</th>
+                <th className="p-4 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-zinc-900">
+              {filteredClients.length === 0 ? (
+                <tr>
+                  <td colSpan="9" className="p-8 text-center text-zinc-500">
+                    No client records match the selected filters.
+                  </td>
+                </tr>
+              ) : (
+                filteredClients.map(item => (
+                  <tr key={item.id} className="hover:bg-zinc-900/20 transition">
+                    <td className="p-4">
+                      <p className="font-bold text-zinc-100">{item.clientName}</p>
+                      <p className="text-xs text-zinc-500">{item.clientEmail}</p>
+                    </td>
+                    <td className="p-4">
+                      <span className="font-bold text-zinc-300">{item.presenter || "Bobby"}</span>
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 rounded bg-zinc-800/80 px-2.5 py-1 text-xs text-zinc-350">
+                        {iconMap[item.audienceId] || "👤"} {item.audienceId ? (item.audienceId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')) : "General"}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <span className={cx(
+                        "inline-block rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider",
+                        item.score === 'red' && 'bg-red-500/10 text-red-400 border border-red-500/20',
+                        item.score === 'orange' && 'bg-orange-500/10 text-orange-400 border border-orange-500/20',
+                        item.score === 'yellow' && 'bg-yellow-500/10 text-amber-300 border border-amber-500/20',
+                        item.score === 'green' && 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/20',
+                        item.score === 'blue' && 'bg-blue-500/10 text-blue-300 border border-blue-500/20',
+                        item.score === 'purple' && 'bg-purple-500/10 text-purple-300 border border-purple-500/20'
+                      )}>
+                        {item.score}
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex flex-wrap gap-1 max-w-[130px]">
+                        {item.goals.slice(0, 2).map(g => (
+                          <span key={g} className="text-[9px] bg-zinc-900 border border-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded font-medium">{g}</span>
+                        ))}
+                        {item.goals.length > 2 && <span className="text-[10px] text-zinc-500 px-1 font-bold">+{item.goals.length - 2}</span>}
+                      </div>
+                    </td>
+                    <td className="p-4">
+                      <div className="flex flex-wrap gap-1 max-w-[150px]">
+                        {item.products.slice(0, 3).map(p => (
+                          <span key={p} className="text-[9px] bg-emerald-400/5 text-emerald-300 border border-emerald-400/10 px-1.5 py-0.5 rounded whitespace-nowrap font-medium">{p}</span>
+                        ))}
+                        {item.products.length > 3 && <span className="text-[9px] text-emerald-500 font-bold">+{item.products.length - 3}</span>}
+                      </div>
+                    </td>
+                    <td className="p-4 whitespace-nowrap text-zinc-300 font-semibold">{item.date}</td>
+                    <td className="p-4">
+                      <select 
+                        value={item.status} 
+                        onChange={(e) => onStatusChange(item.id, e.target.value)}
+                        className="bg-zinc-950 text-zinc-350 border border-zinc-850 rounded-xl p-1.5 text-xs outline-none focus:border-emerald-400 transition cursor-pointer"
+                      >
+                        <option value="Scan Completed">Scan Completed</option>
+                        <option value="Follow-up Sent">Follow-up Sent</option>
+                        <option value="Rescan Scheduled">Rescan Scheduled</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </td>
+                    <td className="p-4 text-center">
+                      <button 
+                        onClick={() => onDeleteClient(item.id)}
+                        className="text-zinc-500 hover:text-red-400 px-2 py-1 text-xs font-semibold transition duration-200 cursor-pointer"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+    </div>
+  );
+}
+
 export default function PrysmPipeline() {
   // Sales Session State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -754,6 +1087,8 @@ export default function PrysmPipeline() {
       return null;
     }
   });
+
+  const [masqueradingPresenter, setMasqueradingPresenter] = useState(null);
 
   // Presentation State
   const [audienceId, setAudienceId] = useState("gym_trainer");
@@ -826,6 +1161,10 @@ export default function PrysmPipeline() {
 
   // Sync builder presenter name to profile
   const handlePresenterNameChange = (name) => {
+    if (masqueradingPresenter) {
+      setMasqueradingPresenter(prev => prev ? { ...prev, name } : null);
+      return;
+    }
     setPresenterName(name);
     setProfile((prev) => {
       const updated = { ...prev, name };
@@ -851,7 +1190,8 @@ export default function PrysmPipeline() {
         goals: ["Energy", "Gut comfort"],
         products: ["LifePak Elements", "Nu Biome"],
         date: "2026-05-15",
-        status: "Scan Completed"
+        status: "Scan Completed",
+        presenter: "Bobby"
       },
       {
         id: "mock-2",
@@ -862,7 +1202,8 @@ export default function PrysmPipeline() {
         goals: ["Athletic recovery", "Energy"],
         products: ["TRMe GO Protein+", "LifePak Elements"],
         date: "2026-05-28",
-        status: "Follow-up Sent"
+        status: "Follow-up Sent",
+        presenter: "Bobby"
       },
       {
         id: "mock-3",
@@ -873,7 +1214,8 @@ export default function PrysmPipeline() {
         goals: ["Skin/beauty", "Stress"],
         products: ["Beauty Focus Collagen+", "Nu Biome"],
         date: "2026-06-01",
-        status: "Rescan Scheduled"
+        status: "Rescan Scheduled",
+        presenter: "Alex"
       },
       {
         id: "mock-4",
@@ -884,7 +1226,56 @@ export default function PrysmPipeline() {
         goals: ["Place scanner", "Extra income"],
         products: ["Prysm iO scanner placement path", "LifePak Elements"],
         date: "2026-06-03",
-        status: "Scan Completed"
+        status: "Scan Completed",
+        presenter: "Alex"
+      },
+      {
+        id: "mock-5",
+        clientName: "Chloe Higgins",
+        clientEmail: "chloe.h@example.com",
+        audienceId: "yoga_wellness",
+        score: "blue",
+        goals: ["Gut comfort", "Skin/beauty"],
+        products: ["Beauty Focus Collagen+", "Nu Biome"],
+        date: "2026-06-02",
+        status: "Completed",
+        presenter: "Sarah"
+      },
+      {
+        id: "mock-6",
+        clientName: "Michael Vance",
+        clientEmail: "m.vance@example.com",
+        audienceId: "athlete_event",
+        score: "purple",
+        goals: ["Athletic recovery"],
+        products: ["TRMe GO Protein+"],
+        date: "2026-06-03",
+        status: "Scan Completed",
+        presenter: "Sarah"
+      },
+      {
+        id: "mock-7",
+        clientName: "James Watson",
+        clientEmail: "jwatson@example.com",
+        audienceId: "gym_trainer",
+        score: "yellow",
+        goals: ["Energy", "Sleep"],
+        products: ["LifePak Elements", "MYND360 Night Time"],
+        date: "2026-05-20",
+        status: "Follow-up Sent",
+        presenter: "David"
+      },
+      {
+        id: "mock-8",
+        clientName: "Lisa Wong",
+        clientEmail: "lisa.wong@example.com",
+        audienceId: "eye_dental_chiro",
+        score: "green",
+        goals: ["Nutrition gaps"],
+        products: ["LifePak Elements"],
+        date: "2026-05-25",
+        status: "Scan Completed",
+        presenter: "David"
       }
     ];
   });
@@ -894,8 +1285,51 @@ export default function PrysmPipeline() {
     localStorage.setItem("prysm_pipeline", JSON.stringify(updated));
   };
 
+  // Computed Presenter List for Manager and Team metrics
+  const presenterList = useMemo(() => {
+    const defaultList = [
+      { name: "Bobby", email: "bobby@prysmpipeline.com", scanGoal: 25, scans: 15 },
+      { name: "Alex", email: "alex@prysmpipeline.com", scanGoal: 20, scans: 8 },
+      { name: "Sarah", email: "sarah@prysmpipeline.com", scanGoal: 30, scans: 12 },
+      { name: "David", email: "david@prysmpipeline.com", scanGoal: 25, scans: 10 }
+    ];
+    // If the logged in presenter is not in the default list, add them dynamically
+    const currentName = currentUser && currentUser.role !== "manager" ? currentUser.name : null;
+    if (currentName && !defaultList.some(p => p.name === currentName)) {
+      defaultList.push({
+        name: currentName,
+        email: currentUser.email || `${currentName.toLowerCase()}@prysmpipeline.com`,
+        scanGoal: profile.scanGoal || 25,
+        scans: pipeline.filter(c => c.presenter === currentName).length + 2
+      });
+    }
+    return defaultList;
+  }, [currentUser, pipeline, profile.scanGoal]);
+
+  const activePresenterName = masqueradingPresenter ? masqueradingPresenter.name : ((currentUser && currentUser.role === "manager") ? "Manager" : presenterName);
+
+  const activePresenter = useMemo(() => {
+    if (masqueradingPresenter) {
+      return presenterList.find(p => p.name === masqueradingPresenter.name) || {
+        name: masqueradingPresenter.name,
+        email: masqueradingPresenter.email || `${masqueradingPresenter.name.toLowerCase()}@prysmpipeline.com`,
+        company: "Prysm Wellness Group",
+        scannerModel: "Prysm iO",
+        scanGoal: 25
+      };
+    }
+    return {
+      name: presenterName,
+      email: profile.email,
+      company: profile.company,
+      scannerModel: profile.scannerModel,
+      scanGoal: profile.scanGoal
+    };
+  }, [masqueradingPresenter, presenterList, presenterName, profile]);
+
   const handleSaveClient = () => {
     if (!newClientName) return;
+    const activeName = masqueradingPresenter ? masqueradingPresenter.name : ((currentUser && currentUser.role === "manager") ? "Manager" : presenterName);
     const newRecord = {
       id: "scan-" + Date.now(),
       clientName: newClientName,
@@ -905,7 +1339,8 @@ export default function PrysmPipeline() {
       goals: [...selectedGoals],
       products: [...recommendations],
       date: new Date().toISOString().split("T")[0],
-      status: "Scan Completed"
+      status: "Scan Completed",
+      presenter: activeName
     };
     savePipeline([newRecord, ...pipeline]);
     setNewClientName("");
@@ -930,7 +1365,7 @@ export default function PrysmPipeline() {
     setSelectedGoals((current) => current.includes(goal) ? current.filter((item) => item !== goal) : [...current, goal]);
   };
 
-  const scriptText = `${presenterName}: Before I explain anything, this is not a medical test and I'm not here to diagnose anything. Think of it as a nutrition mirror. It gives us a quick look at your carotenoid trend, which can reflect how your food, supplements, and lifestyle habits are showing up.
+  const scriptText = `${activePresenter.name}: Before I explain anything, this is not a medical test and I'm not here to diagnose anything. Think of it as a nutrition mirror. It gives us a quick look at your carotenoid trend, which can reflect how your food, supplements, and lifestyle habits are showing up.
 
 Let's do a 15-second scan first.
 
@@ -983,26 +1418,70 @@ Output:
     );
   }
 
-  // Dashboard calculations
-  const totalScans = pipeline.length;
-  const currentMonthScans = pipeline.filter(s => s.date.startsWith("2026-06")).length;
-  const targetPercentage = Math.min(100, Math.round((currentMonthScans / profile.scanGoal) * 100));
+  // Render manager dashboard if role is manager and not masquerading
+  if (currentUser.role === "manager" && !masqueradingPresenter) {
+    return (
+      <main className="min-h-screen bg-zinc-950 p-4 text-zinc-50 md:p-8 relative">
+        <div className="mx-auto max-w-6xl space-y-6">
+          <ManagerDashboardView
+            currentUser={currentUser}
+            pipeline={pipeline}
+            presenterList={presenterList}
+            onLogout={() => {
+              localStorage.removeItem("prysm_user");
+              setCurrentUser(null);
+            }}
+            onViewCompanion={(pres) => {
+              setMasqueradingPresenter(pres);
+              setActiveTab("builder");
+            }}
+            onDeleteClient={handleDeleteClient}
+            onStatusChange={handleStatusChange}
+          />
+        </div>
+      </main>
+    );
+  }
 
-  const scoreCounts = pipeline.reduce((acc, item) => {
+  // Filter client pipeline based on the active presenter
+  const activePresenterPipeline = pipeline.filter(item => item.presenter === activePresenter.name);
+
+  // Dashboard calculations
+  const totalScans = activePresenterPipeline.length;
+  const currentMonthScans = activePresenterPipeline.filter(s => s.date.startsWith("2026-06")).length;
+  const targetPercentage = Math.min(100, Math.round((currentMonthScans / activePresenter.scanGoal) * 100));
+
+  const scoreCounts = activePresenterPipeline.reduce((acc, item) => {
     acc[item.score] = (acc[item.score] || 0) + 1;
     return acc;
   }, {});
 
   return (
-    <main className="min-h-screen bg-zinc-950 p-4 text-zinc-50 md:p-8 relative">
-      <div className="mx-auto max-w-6xl space-y-6">
+    <main className="min-h-screen bg-zinc-950 text-zinc-50 relative">
+      {/* Masquerade Mode Warning Banner */}
+      {masqueradingPresenter && (
+        <div className="bg-emerald-500 text-zinc-950 font-bold px-4 py-3 flex items-center justify-between shadow-lg sticky top-0 z-50">
+          <div className="flex items-center gap-2">
+            <span>👁️ Masquerading as <strong>{masqueradingPresenter.name}</strong></span>
+            <span className="text-xs bg-zinc-950/20 px-2 py-0.5 rounded font-extrabold">Manager View Mode</span>
+          </div>
+          <button 
+            onClick={() => setMasqueradingPresenter(null)}
+            className="bg-zinc-950 text-emerald-400 hover:bg-zinc-900 px-3.5 py-1.5 rounded-lg text-xs font-extrabold transition cursor-pointer"
+          >
+            Exit Masquerade
+          </button>
+        </div>
+      )}
+
+      <div className="mx-auto max-w-6xl p-4 md:p-8 space-y-6">
         
         {/* App Title Banner */}
         <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-2">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Badge>Sales Dashboard</Badge>
-              <span className="text-xs text-zinc-500">Presenter: {profile.name} ({profile.company})</span>
+              <span className="text-xs text-zinc-500">Presenter: {activePresenter.name} ({activePresenter.company})</span>
             </div>
             <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">Prysm Pipeline</h1>
             <p className="max-w-3xl text-sm text-zinc-300">Scanner-first client management system to convert scans to recurring pipeline support.</p>
@@ -1039,6 +1518,7 @@ Output:
               onClick={() => {
                 localStorage.removeItem("prysm_user");
                 setCurrentUser(null);
+                setMasqueradingPresenter(null);
               }}
               className="rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-950/20 hover:border-red-900/30 transition cursor-pointer shadow-sm"
             >
@@ -1067,7 +1547,7 @@ Output:
                   <div className="space-y-3">
                     <FieldLabel>Presenter name</FieldLabel>
                     <input 
-                      value={presenterName} 
+                      value={activePresenter.name} 
                       onChange={(event) => handlePresenterNameChange(event.target.value)} 
                       className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400" 
                     />
@@ -1164,9 +1644,9 @@ Output:
             </section>
           ) : (
             <WizardView
-              presenterName={presenterName}
+              presenterName={activePresenter.name}
               onPresenterNameChange={handlePresenterNameChange}
-              profile={profile}
+              profile={activePresenter}
               setProfile={setProfile}
               audienceId={audienceId}
               setAudienceId={setAudienceId}
@@ -1265,14 +1745,14 @@ Output:
                 <div>
                   <p className="text-zinc-400 text-sm font-medium">Monthly Scan Target</p>
                   <div className="flex items-baseline justify-between mt-1">
-                    <p className="text-4xl font-bold text-zinc-50">{currentMonthScans} / {profile.scanGoal}</p>
+                    <p className="text-4xl font-bold text-zinc-50">{currentMonthScans} / {activePresenter.scanGoal}</p>
                     <span className="text-sm font-semibold text-emerald-400">{targetPercentage}%</span>
                   </div>
                   <div className="w-full bg-zinc-950 rounded-full h-2 mt-3 overflow-hidden border border-zinc-800">
                     <div className="bg-emerald-400 h-full rounded-full" style={{ width: `${targetPercentage}%` }}></div>
                   </div>
                 </div>
-                <span className="text-xs text-zinc-500 mt-2 block">Monthly target: {profile.scanGoal} scans</span>
+                <span className="text-xs text-zinc-500 mt-2 block">Monthly target: {activePresenter.scanGoal} scans</span>
               </Card>
 
               <Card className="p-5 flex flex-col justify-between">
@@ -1339,14 +1819,14 @@ Output:
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-900">
-                    {pipeline.length === 0 ? (
+                    {activePresenterPipeline.length === 0 ? (
                       <tr>
                         <td colSpan="8" className="p-8 text-center text-zinc-500">
                           No client records logged yet. Run a scan in the Builder tab to save a client.
                         </td>
                       </tr>
                     ) : (
-                      pipeline.map(item => {
+                      activePresenterPipeline.map(item => {
                         const scanDateObj = new Date(item.date);
                         const diffTime = Math.abs(new Date().getTime() - scanDateObj.getTime());
                         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -1432,7 +1912,7 @@ Output:
 
         {/* Profile Settings View */}
         {activeTab === "profile" && (
-          <section className="max-w-2xl mx-auto">
+          <section className="max-w-2xl mx-auto animate-fade-in">
             <Card>
               <div className="p-6 space-y-6">
                 <div className="border-b border-zinc-800 pb-4">
@@ -1440,13 +1920,20 @@ Output:
                   <p className="text-sm text-zinc-400">Manage salesperson credentials, scanner hardware details, and goals.</p>
                 </div>
 
+                {masqueradingPresenter && (
+                  <div className="rounded-xl border border-amber-500/20 bg-amber-550/10 p-4 text-xs font-bold text-amber-400">
+                    ⚠️ Settings are read-only while masquerading as {activePresenter.name}.
+                  </div>
+                )}
+
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
                       <FieldLabel>Full Name</FieldLabel>
                       <input 
                         type="text" 
-                        value={profile.name}
+                        value={activePresenter.name}
+                        disabled={!!masqueradingPresenter}
                         onChange={(e) => {
                           const val = e.target.value;
                           setPresenterName(val);
@@ -1456,14 +1943,15 @@ Output:
                             return updated;
                           });
                         }}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition"
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition disabled:opacity-50"
                       />
                     </div>
                     <div className="space-y-1.5">
                       <FieldLabel>Email Address</FieldLabel>
                       <input 
                         type="email" 
-                        value={profile.email}
+                        value={activePresenter.email || ""}
+                        disabled={!!masqueradingPresenter}
                         onChange={(e) => {
                           const val = e.target.value;
                           setProfile(prev => {
@@ -1472,7 +1960,7 @@ Output:
                             return updated;
                           });
                         }}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition"
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition disabled:opacity-50"
                       />
                     </div>
                   </div>
@@ -1482,7 +1970,8 @@ Output:
                       <FieldLabel>Company/Team Name</FieldLabel>
                       <input 
                         type="text" 
-                        value={profile.company}
+                        value={activePresenter.company || ""}
+                        disabled={!!masqueradingPresenter}
                         onChange={(e) => {
                           const val = e.target.value;
                           setProfile(prev => {
@@ -1491,13 +1980,14 @@ Output:
                             return updated;
                           });
                         }}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition"
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition disabled:opacity-50"
                       />
                     </div>
                     <div className="space-y-1.5">
                       <FieldLabel>Scanner Model</FieldLabel>
                       <select 
-                        value={profile.scannerModel}
+                        value={activePresenter.scannerModel || "Prysm iO"}
+                        disabled={!!masqueradingPresenter}
                         onChange={(e) => {
                           const val = e.target.value;
                           setProfile(prev => {
@@ -1506,7 +1996,7 @@ Output:
                             return updated;
                           });
                         }}
-                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition"
+                        className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition disabled:opacity-50 cursor-pointer"
                       >
                         <option value="Prysm iO">Prysm iO</option>
                         <option value="Scanner M5">Scanner M5</option>
@@ -1519,7 +2009,8 @@ Output:
                     <FieldLabel>Target Monthly Client Scans</FieldLabel>
                     <input 
                       type="number" 
-                      value={profile.scanGoal}
+                      value={activePresenter.scanGoal || 0}
+                      disabled={!!masqueradingPresenter}
                       onChange={(e) => {
                         const val = parseInt(e.target.value) || 0;
                         setProfile(prev => {
@@ -1528,7 +2019,7 @@ Output:
                           return updated;
                         });
                       }}
-                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition"
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400 transition disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -1539,6 +2030,7 @@ Output:
                     onClick={() => {
                       localStorage.removeItem("prysm_user");
                       setCurrentUser(null);
+                      setMasqueradingPresenter(null);
                     }}
                     className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-2.5 text-xs font-semibold text-red-400 hover:bg-red-500/10 transition duration-200 cursor-pointer"
                   >
