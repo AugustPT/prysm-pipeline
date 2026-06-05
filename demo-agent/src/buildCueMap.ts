@@ -27,9 +27,14 @@ const CUES_PATH = process.env.DEMO_CUES_PATH || 'demo-agent/cues/prysm-pipeline-
 
 const SCRIPT_SECTIONS = [
   {
+    id: 'login',
+    title: 'Login screen',
+    narration: "This is the landing page of the Prysm Pipeline companion. First, let's log in as a presenter using the Demo Presenter option.",
+  },
+  {
     id: 'opening',
     title: 'Opening',
-    narration: "This is the Prysm Pipeline app. It's a scanner-first conversation tool. The goal is to help someone run a simple 15–20 minute wellness conversation based on the person, their scan color, and what they care about.",
+    narration: "Once logged in, we land on the main workspace. This is the Prysm Pipeline app. It's a scanner-first conversation tool. The goal is to help someone run a simple 15–20 minute wellness conversation based on the person, their scan color, and what they care about.",
   },
   {
     id: 'builder-tab',
@@ -70,6 +75,11 @@ const SCRIPT_SECTIONS = [
     id: 'goals-result',
     title: 'Product Fit Changes',
     narration: 'When you click those goals, look at Possible product fit on the right. That section updates based on what they care about.',
+  },
+  {
+    id: 'save-client',
+    title: 'Save Client to Pipeline',
+    narration: 'Now that we have configured the scan results and goals, let\'s save this client directly into our sales pipeline.',
   },
   {
     id: 'builder-summary',
@@ -115,6 +125,11 @@ const SCRIPT_SECTIONS = [
     id: 'guardrails-compliance',
     title: 'Guardrails — Compliance Reminder',
     narration: 'The yellow box at the bottom is the reminder that real deployment should use official approved claims.',
+  },
+  {
+    id: 'pipeline-tab',
+    title: 'Pipeline Tab Dashboard',
+    narration: 'Now let\'s switch to the Pipeline tab to view our updated sales dashboard and client pipeline tracker.',
   },
   {
     id: 'tests-tab',

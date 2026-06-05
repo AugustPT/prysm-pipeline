@@ -81,6 +81,20 @@ const SELECTORS: Record<string, SelectorFactory> = {
   'ai-prompt-tab':     (c) => c.getByRole('button', { name: 'AI Prompt', exact: true }),
   'guardrails-tab':    (c) => c.getByRole('button', { name: 'Guardrails', exact: true }),
   'tests-tab':         (c) => c.getByRole('button', { name: 'Tests', exact: true }),
+  'pipeline-tab':      (c) => c.getByRole('button', { name: 'Pipeline', exact: true }),
+  'profile-tab':       (c) => c.getByRole('button', { name: 'Profile', exact: true }),
+
+  // ── Authentication ────────────────────────────────────────────────────
+  'login-email-field':    (c) => c.getByPlaceholder('Enter your email', { exact: false }),
+  'login-password-field': (c) => c.getByPlaceholder('Enter your password', { exact: false }),
+  'login-button':         (c) => c.getByRole('button', { name: 'Login', exact: true }),
+  'demo-login-button':    (c) => c.getByRole('button', { name: 'Demo Presenter Login', exact: true }),
+
+  // ── Client Pipeline Save Modal ────────────────────────────────────────
+  'save-client-btn':    (c) => c.getByRole('button', { name: 'Save Client to Pipeline', exact: true }),
+  'client-name-input':  (c) => c.getByPlaceholder('Client Name', { exact: true }),
+  'client-email-input': (c) => c.getByPlaceholder('Client Email', { exact: true }),
+  'save-confirm-btn':   (c) => c.getByRole('button', { name: 'Save to Pipeline', exact: true }),
 
   // ── Presenter name ────────────────────────────────────────────────────
   'presenter-name-label': (c) => c.getByText('Presenter name', { exact: false }),

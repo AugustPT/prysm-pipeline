@@ -106,9 +106,8 @@ async function main(): Promise<void> {
 
   // Launch browser
   const browser: Browser = await chromium.launch({
-    headless: false, // Show the browser for demo quality
+    headless: true, // Run headless for stability in non-interactive environment
     args: [
-      '--start-fullscreen',
       '--disable-gpu',
       '--disable-software-rasterizer',
       '--disable-blink-features=AutomationControlled',

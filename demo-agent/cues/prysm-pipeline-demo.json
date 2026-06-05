@@ -1,14 +1,32 @@
 [
   {
-    "id": "open-app",
-    "narration": "This is the Prysm Pipeline app. It's a scanner-first conversation tool. The goal is to help someone run a simple 15–20 minute wellness conversation based on the person, their scan color, and what they care about.",
+    "id": "login",
+    "narration": "This is the landing page of the Prysm Pipeline companion. First, let's log in as a presenter using the Demo Presenter option.",
     "actions": [
       { "type": "open_app" },
-      { "type": "wait", "ms": 3000 },
+      { "type": "wait", "ms": 2000 },
+      { "type": "verify", "target": "demo-login-button", "verifyType": "visible" },
+      { "type": "highlight", "target": "demo-login-button", "label": "Demo Presenter Login", "dim": false },
+      { "type": "wait", "ms": 1500 },
+      { "type": "click", "target": "demo-login-button" },
+      { "type": "wait", "ms": 2000 },
       { "type": "verify", "target": "app_visible", "verifyType": "visible" },
-      { "type": "screenshot", "name": "01-open-app" }
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "01-login-success" }
     ],
-    "pauseMs": 2000
+    "pauseMs": 1500
+  },
+  {
+    "id": "open-app",
+    "narration": "Once logged in, we land on the main workspace. This is the Prysm Pipeline companion, a scanner-first wellness conversation system.",
+    "actions": [
+      { "type": "verify", "target": "app-title", "verifyType": "visible" },
+      { "type": "highlight", "target": "app-title", "label": "Prysm Pipeline", "dim": false },
+      { "type": "wait", "ms": 1500 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "02-open-app" }
+    ],
+    "pauseMs": 1500
   },
   {
     "id": "builder-tab",
@@ -21,7 +39,7 @@
       { "type": "wait", "ms": 500 },
       { "type": "verify", "target": "presenter-name-label", "verifyType": "visible" },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "02-builder-tab" }
+      { "type": "screenshot", "name": "03-builder-tab" }
     ],
     "pauseMs": 1500
   },
@@ -39,7 +57,7 @@
       { "type": "highlight", "target": "presenter-name-field", "label": "Name entered: Alex", "dim": false },
       { "type": "wait", "ms": 1000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "03-presenter-name" }
+      { "type": "screenshot", "name": "04-presenter-name" }
     ],
     "pauseMs": 1500
   },
@@ -51,7 +69,7 @@
       { "type": "highlight", "target": "audience-selector-panel", "label": "Who are we talking to?" },
       { "type": "wait", "ms": 2000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "04-audience-section" }
+      { "type": "screenshot", "name": "05-audience-section" }
     ],
     "pauseMs": 1500
   },
@@ -65,13 +83,13 @@
       { "type": "click", "target": "audience-yoga-wellness-community" },
       { "type": "wait", "ms": 800 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "05-audience-yoga-selected" },
+      { "type": "screenshot", "name": "06-audience-yoga-selected" },
       { "type": "scroll_to", "target": "opening-line-panel", "block": "start" },
       { "type": "wait", "ms": 500 },
       { "type": "highlight", "target": "opening-line-panel", "label": "Opening line — updated for Yoga audience" },
       { "type": "wait", "ms": 2000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "06-opening-line-updated" }
+      { "type": "screenshot", "name": "07-opening-line-updated" }
     ],
     "pauseMs": 1500
   },
@@ -83,12 +101,12 @@
       { "type": "highlight", "target": "core-questions-panel", "label": "Core questions — tailored to Yoga audience" },
       { "type": "wait", "ms": 2000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "07-core-questions-updated" },
+      { "type": "screenshot", "name": "08-core-questions-updated" },
       { "type": "scroll_to", "target": "recommended-next-step-panel", "block": "center" },
       { "type": "highlight", "target": "recommended-next-step-panel", "label": "Recommended next step" },
       { "type": "wait", "ms": 2000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "08-recommended-next-step" }
+      { "type": "screenshot", "name": "09-recommended-next-step" }
     ],
     "pauseMs": 1500
   },
@@ -100,7 +118,7 @@
       { "type": "highlight", "target": "scan-color-panel", "label": "Scan Color" },
       { "type": "wait", "ms": 2000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "09-scan-color-section" }
+      { "type": "screenshot", "name": "10-scan-color-section" }
     ],
     "pauseMs": 1000
   },
@@ -115,13 +133,13 @@
       { "type": "wait", "ms": 800 },
       { "type": "clear_highlight" },
       { "type": "verify", "target": "scan-color-green", "verifyType": "visible" },
-      { "type": "screenshot", "name": "10-scan-color-green-selected" },
+      { "type": "screenshot", "name": "11-scan-color-green-selected" },
       { "type": "scroll_to", "target": "score-guidance-panel", "block": "center" },
       { "type": "highlight", "target": "score-guidance-panel", "label": "Score guidance — updated for Green" },
       { "type": "wait", "ms": 2000 },
       { "type": "verify", "target": "score-guidance-panel", "verifyType": "visible" },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "11-score-guidance-green" }
+      { "type": "screenshot", "name": "12-score-guidance-green" }
     ],
     "pauseMs": 1500
   },
@@ -133,7 +151,7 @@
       { "type": "highlight", "target": "primary-goals-panel", "label": "Primary Goals" },
       { "type": "wait", "ms": 2000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "12-primary-goals-section" }
+      { "type": "screenshot", "name": "13-primary-goals-section" }
     ],
     "pauseMs": 1000
   },
@@ -156,13 +174,35 @@
       { "type": "click", "target": "goal-stress" },
       { "type": "wait", "ms": 800 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "13-goals-selected" },
+      { "type": "screenshot", "name": "14-goals-selected" },
       { "type": "scroll_to", "target": "possible-product-fit-panel", "block": "center" },
       { "type": "highlight", "target": "possible-product-fit-panel", "label": "Possible product fit — updated for Energy, Sleep, Stress" },
       { "type": "wait", "ms": 2500 },
       { "type": "verify", "target": "possible-product-fit-panel", "verifyType": "visible" },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "14-product-fit-updated" }
+      { "type": "screenshot", "name": "15-product-fit-updated" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "save-client",
+    "narration": "Now that we have configured the scan results and goals, let's save this client directly into our sales pipeline.",
+    "actions": [
+      { "type": "scroll_to", "target": "save-client-btn", "block": "center" },
+      { "type": "highlight", "target": "save-client-btn", "label": "Save Client to Pipeline", "dim": false },
+      { "type": "wait", "ms": 1000 },
+      { "type": "click", "target": "save-client-btn" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "clear_highlight" },
+      { "type": "verify", "target": "client-name-input", "verifyType": "visible" },
+      { "type": "type", "target": "client-name-input", "value": "Sarah Miller", "clearFirst": true },
+      { "type": "type", "target": "client-email-input", "value": "sarah.m@example.com", "clearFirst": true },
+      { "type": "highlight", "target": "save-confirm-btn", "label": "Confirm Save", "dim": false },
+      { "type": "wait", "ms": 1000 },
+      { "type": "click", "target": "save-confirm-btn" },
+      { "type": "wait", "ms": 1500 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "16-save-client-success" }
     ],
     "pauseMs": 1500
   },
@@ -172,10 +212,10 @@
     "actions": [
       { "type": "scroll_to", "target": "top" },
       { "type": "wait", "ms": 1000 },
-      { "type": "screenshot", "name": "15-builder-summary-top" },
-      { "type": "scroll_to", "target": "recommended-next-step-panel", "block": "end" },
+      { "type": "screenshot", "name": "17-builder-summary-top" },
+      { "type": "scroll_to", "target": "save-client-btn", "block": "end" },
       { "type": "wait", "ms": 1000 },
-      { "type": "screenshot", "name": "16-builder-summary-bottom" }
+      { "type": "screenshot", "name": "18-builder-summary-bottom" }
     ],
     "pauseMs": 2000
   },
@@ -191,7 +231,7 @@
       { "type": "wait", "ms": 1000 },
       { "type": "clear_highlight" },
       { "type": "verify", "target": "app_visible", "verifyType": "visible" },
-      { "type": "screenshot", "name": "17-script-tab" }
+      { "type": "screenshot", "name": "19-script-tab" }
     ],
     "pauseMs": 1500
   },
@@ -203,7 +243,7 @@
       { "type": "highlight", "target": "script-flow-panel", "label": "Five-part flow: Frame → Scan → Explain → Ask → Next Step", "dim": false },
       { "type": "wait", "ms": 3000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "18-script-five-part-flow" }
+      { "type": "screenshot", "name": "20-script-five-part-flow" }
     ],
     "pauseMs": 1500
   },
@@ -213,10 +253,10 @@
     "actions": [
       { "type": "scroll_to", "target": "script-output-panel", "block": "start" },
       { "type": "wait", "ms": 1000 },
-      { "type": "screenshot", "name": "19-script-output-top" },
+      { "type": "screenshot", "name": "21-script-output-top" },
       { "type": "scroll_to", "target": "script-output-panel", "block": "end" },
       { "type": "wait", "ms": 1000 },
-      { "type": "screenshot", "name": "20-script-output-bottom" }
+      { "type": "screenshot", "name": "22-script-output-bottom" }
     ],
     "pauseMs": 2000
   },
@@ -232,10 +272,10 @@
       { "type": "wait", "ms": 1000 },
       { "type": "clear_highlight" },
       { "type": "verify", "target": "app_visible", "verifyType": "visible" },
-      { "type": "screenshot", "name": "21-ai-prompt-tab-top" },
+      { "type": "screenshot", "name": "23-ai-prompt-tab-top" },
       { "type": "scroll_to", "target": "ai-prompt-output-panel", "block": "end" },
       { "type": "wait", "ms": 1000 },
-      { "type": "screenshot", "name": "22-ai-prompt-tab-bottom" }
+      { "type": "screenshot", "name": "24-ai-prompt-tab-bottom" }
     ],
     "pauseMs": 2000
   },
@@ -251,7 +291,7 @@
       { "type": "wait", "ms": 1000 },
       { "type": "clear_highlight" },
       { "type": "verify", "target": "app_visible", "verifyType": "visible" },
-      { "type": "screenshot", "name": "23-guardrails-tab" }
+      { "type": "screenshot", "name": "25-guardrails-tab" }
     ],
     "pauseMs": 1000
   },
@@ -263,7 +303,7 @@
       { "type": "highlight", "target": "guardrails-say-this-panel", "label": "✅ Say this — safe phrases" },
       { "type": "wait", "ms": 3000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "24-guardrails-say-this" }
+      { "type": "screenshot", "name": "26-guardrails-say-this" }
     ],
     "pauseMs": 1500
   },
@@ -275,7 +315,7 @@
       { "type": "highlight", "target": "guardrails-avoid-this-panel", "label": "❌ Avoid this — unsafe phrases" },
       { "type": "wait", "ms": 3000 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "25-guardrails-avoid-this" }
+      { "type": "screenshot", "name": "27-guardrails-avoid-this" }
     ],
     "pauseMs": 1500
   },
@@ -287,7 +327,23 @@
       { "type": "highlight", "target": "guardrails-compliance-reminder", "label": "⚠️ Compliance Reminder" },
       { "type": "wait", "ms": 2500 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "26-guardrails-compliance" }
+      { "type": "screenshot", "name": "28-guardrails-compliance" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "pipeline-tab",
+    "narration": "Now let's switch to the Pipeline tab to view our updated sales dashboard and client pipeline tracker.",
+    "actions": [
+      { "type": "scroll_to", "target": "top" },
+      { "type": "wait", "ms": 500 },
+      { "type": "highlight", "target": "pipeline-tab", "label": "Pipeline Tab", "dim": false },
+      { "type": "wait", "ms": 800 },
+      { "type": "click", "target": "pipeline-tab" },
+      { "type": "wait", "ms": 1500 },
+      { "type": "clear_highlight" },
+      { "type": "verify", "target": "app_visible", "verifyType": "visible" },
+      { "type": "screenshot", "name": "29-pipeline-tab" }
     ],
     "pauseMs": 1500
   },
@@ -303,18 +359,18 @@
       { "type": "wait", "ms": 1000 },
       { "type": "clear_highlight" },
       { "type": "verify", "target": "app_visible", "verifyType": "visible" },
-      { "type": "screenshot", "name": "27-tests-tab-top" },
+      { "type": "screenshot", "name": "30-tests-tab-top" },
       { "type": "scroll_to", "target": "tests-pass-panel", "block": "center" },
       { "type": "highlight", "target": "tests-pass-panel", "label": "✅ All Tests Passing" },
       { "type": "wait", "ms": 2500 },
       { "type": "clear_highlight" },
-      { "type": "screenshot", "name": "28-tests-pass" }
+      { "type": "screenshot", "name": "31-tests-pass" }
     ],
     "pauseMs": 2000
   },
   {
     "id": "closing",
-    "narration": "So the simple flow is: Start in Builder. Choose the presenter, audience, scan color, and goals. Use the right side to guide the live conversation. Go to Script for the full talk track. Go to AI Prompt if you want AI to rewrite or extend it. Go to Guardrails to keep the language safe. Go to Tests to make sure the app logic is working. That's the app: it helps someone run a smarter scanner conversation without guessing what to say.",
+    "narration": "So the simple flow is: Start in Builder. Choose the presenter, audience, scan color, and goals. Use the right side to guide the live conversation. Go to Script for the full talk track. Go to AI Prompt if you want AI to rewrite or extend it. Go to Guardrails to keep the language safe. Go to Pipeline to check client progression. Go to Tests to make sure the app logic is working. That's the app: it helps someone run a smarter scanner conversation without guessing what to say.",
     "actions": [
       { "type": "scroll_to", "target": "top" },
       { "type": "wait", "ms": 1000 },
@@ -322,7 +378,7 @@
       { "type": "wait", "ms": 1000 },
       { "type": "scroll_to", "target": "top" },
       { "type": "wait", "ms": 500 },
-      { "type": "screenshot", "name": "29-closing-overview" },
+      { "type": "screenshot", "name": "32-closing-overview" },
       { "type": "record_marker", "marker": "end" }
     ],
     "pauseMs": 3000
