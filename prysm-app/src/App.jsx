@@ -413,20 +413,20 @@ function WizardView({
   ];
 
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-5 animate-fade-in">
       {/* ── TOP COMPACT CONFIG PANEL ── */}
-      <Card className="bg-zinc-900/90 border border-zinc-800 p-4 shadow-lg transition duration-200">
+      <Card className="bg-zinc-900/90 border border-zinc-800 p-4 md:p-5 shadow-lg transition duration-200">
         {configCollapsed ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 overflow-hidden">
-              <span className="text-xl shrink-0">{iconMap[audienceId]}</span>
+          <div className="flex items-center justify-between py-1.5">
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <span className="text-3xl shrink-0">{iconMap[audienceId]}</span>
               <div className="min-w-0">
-                <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Active Client Setup</p>
-                <div className="flex flex-wrap items-center gap-1.5 mt-1 text-xs text-zinc-200">
-                  <span className="font-medium truncate">{audience.label}</span>
+                <p className="text-xs md:text-sm font-bold text-zinc-400 uppercase tracking-wider leading-none">Active Setup</p>
+                <div className="flex flex-wrap items-center gap-2 mt-2 text-base md:text-lg font-semibold text-zinc-100">
+                  <span className="truncate">{audience.label}</span>
                   <span className="text-zinc-600">•</span>
-                  <span className="flex items-center gap-1 capitalize">
-                    <span className={cx("h-2 w-2 rounded-full", 
+                  <span className="flex items-center gap-2 capitalize">
+                    <span className={cx("h-3.5 w-3.5 rounded-full shadow-sm", 
                       score === "red" ? "bg-red-500" :
                       score === "orange" ? "bg-orange-500" :
                       score === "yellow" ? "bg-yellow-400" :
@@ -437,8 +437,8 @@ function WizardView({
                   </span>
                   {selectedGoals.length > 0 && (
                     <>
-                      <span className="text-zinc-600">•</span>
-                      <span className="text-zinc-400 truncate max-w-[150px]">{selectedGoals.join(", ")}</span>
+                      <span className="text-zinc-650">•</span>
+                      <span className="text-zinc-350 truncate max-w-[200px] font-normal text-sm md:text-base">{selectedGoals.join(", ")}</span>
                     </>
                   )}
                 </div>
@@ -446,26 +446,26 @@ function WizardView({
             </div>
             <button 
               onClick={() => setConfigCollapsed(false)}
-              className="rounded-lg border border-zinc-800 bg-zinc-950 px-3 py-1.5 text-xs font-semibold text-emerald-400 hover:border-zinc-700 hover:bg-zinc-900 transition shrink-0 ml-2 cursor-pointer"
+              className="rounded-xl border border-zinc-800 bg-zinc-950 px-4.5 py-2.5 text-sm font-bold text-emerald-400 hover:border-zinc-700 hover:bg-zinc-900 transition shrink-0 ml-3 cursor-pointer shadow-sm"
             >
               Edit Setup
             </button>
           </div>
         ) : (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between pb-1 border-b border-zinc-850/50">
-              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Configure Scan Presentation</span>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-zinc-800/80">
+              <span className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Configure Scan Presentation</span>
               <button 
                 onClick={() => setConfigCollapsed(true)}
-                className="text-[10px] font-semibold text-zinc-500 hover:text-zinc-300 transition cursor-pointer"
+                className="text-sm font-semibold text-zinc-400 hover:text-zinc-205 px-2.5 py-1.5 transition cursor-pointer"
               >
                 Collapse ✕
               </button>
             </div>
             
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between">
+            <div className="flex flex-col gap-3.5 sm:flex-row sm:items-center justify-between">
               <div className="flex-1">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Client Setting (Audience)</label>
+                <label className="text-sm font-bold text-zinc-400 uppercase tracking-wider block mb-2">Client Setting (Audience)</label>
                 <div className="relative">
                   <select 
                     value={audienceId}
@@ -473,7 +473,7 @@ function WizardView({
                       setAudienceId(e.target.value);
                       setCheckedQuestions({});
                     }}
-                    className="w-full appearance-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-emerald-400 cursor-pointer pr-8"
+                    className="w-full appearance-none rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-base md:text-lg font-semibold text-zinc-100 outline-none focus:border-emerald-400 cursor-pointer pr-10"
                   >
                     {audiences.map((item) => (
                       <option key={item.id} value={item.id}>
@@ -481,28 +481,28 @@ function WizardView({
                       </option>
                     ))}
                   </select>
-                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 text-[10px]">
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-zinc-400 text-sm">
                     ▼
                   </div>
                 </div>
               </div>
               
               <div className="flex-1 sm:ml-4">
-                <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Presenter Name</label>
+                <label className="text-sm font-bold text-zinc-400 uppercase tracking-wider block mb-2">Presenter Name</label>
                 <input
                   type="text"
                   value={presenterName}
                   onChange={(e) => onPresenterNameChange(e.target.value)}
                   placeholder="Presenter Name"
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-emerald-400 animate-fade-in"
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-base md:text-lg font-semibold text-zinc-100 outline-none focus:border-emerald-400 animate-fade-in"
                 />
               </div>
             </div>
 
             {/* Scan Color Row */}
             <div>
-              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Scan Score Color</label>
-              <div className="flex gap-1.5 bg-zinc-950 border border-zinc-850 rounded-xl p-1.5 overflow-x-auto no-scrollbar">
+              <label className="text-sm font-bold text-zinc-400 uppercase tracking-wider block mb-2">Scan Score Color</label>
+              <div className="flex gap-2 bg-zinc-950 border border-zinc-850 rounded-xl p-2 overflow-x-auto no-scrollbar">
                 {Object.keys(scoreGuidance).map((item) => {
                   const bgColors = {
                     red: "bg-red-500",
@@ -518,13 +518,13 @@ function WizardView({
                       key={item}
                       onClick={() => setScore(item)}
                       className={cx(
-                        "flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium capitalize border transition cursor-pointer shrink-0",
+                        "flex items-center gap-1 rounded-lg px-2 py-1.5 text-base font-semibold capitalize border transition cursor-pointer shrink-0",
                         isSelected 
-                          ? "border-emerald-400 bg-emerald-400/10 text-emerald-300 font-semibold" 
-                          : "border-transparent bg-transparent text-zinc-500 hover:text-zinc-300"
+                          ? "border-emerald-400 bg-emerald-400/10 text-emerald-300 font-bold" 
+                          : "border-transparent bg-transparent text-zinc-400 hover:text-zinc-200"
                       )}
                     >
-                      <span className={cx("h-2.5 w-2.5 rounded-full", bgColors[item])} />
+                      <span className={cx("h-3 w-3 rounded-full shadow-inner shrink-0", bgColors[item])} />
                       {item}
                     </button>
                   );
@@ -534,8 +534,8 @@ function WizardView({
 
             {/* Goals Pill Row */}
             <div>
-              <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Client Goals</label>
-              <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+              <label className="text-sm font-bold text-zinc-400 uppercase tracking-wider block mb-2">Client Goals</label>
+              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                 {goals.map((goal) => {
                   const isSelected = selectedGoals.includes(goal);
                   return (
@@ -543,10 +543,10 @@ function WizardView({
                       key={goal}
                       onClick={() => toggleGoal(goal)}
                       className={cx(
-                        "rounded-full px-2.5 py-1 text-[10px] border transition cursor-pointer shrink-0",
+                        "rounded-full px-3.5 py-2 text-sm font-semibold border transition cursor-pointer shrink-0",
                         isSelected 
-                          ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-semibold" 
-                          : "border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700"
+                          ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-extrabold" 
+                          : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-650"
                       )}
                     >
                       {goal} {isSelected && "✓"}
@@ -562,12 +562,12 @@ function WizardView({
       {/* ── CUE CARD DISPLAY ── */}
       <Card className="bg-zinc-900/80 border border-zinc-800 p-5 md:p-6 shadow-xl relative overflow-hidden">
         {/* Card Progress Indicator */}
-        <div className="flex items-center justify-between text-xs text-zinc-500 mb-3 border-b border-zinc-850 pb-2">
-          <span className="font-semibold text-emerald-400 uppercase tracking-wider text-[10px]">{steps[cardIndex - 1].label}</span>
-          <span>Card {cardIndex} of 3</span>
+        <div className="flex items-center justify-between text-zinc-400 mb-3.5 border-b border-zinc-850 pb-3">
+          <span className="font-extrabold text-emerald-400 uppercase tracking-wider text-sm">{steps[cardIndex - 1].label}</span>
+          <span className="text-base font-semibold text-zinc-400">Card {cardIndex} of 3</span>
         </div>
 
-        <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden mb-5">
+        <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden mb-6">
           <div 
             className="h-full bg-emerald-400 transition-all duration-300 shadow-md shadow-emerald-400/20"
             style={{ width: `${(cardIndex / 3) * 100}%` }}
@@ -575,43 +575,43 @@ function WizardView({
         </div>
 
         {/* Card Content Block */}
-        <div className="min-h-[280px] flex flex-col justify-between">
-          <div className="space-y-4">
+        <div className="min-h-[300px] flex flex-col justify-between">
+          <div className="space-y-5.5">
             
             {/* CARD 1: THE OPENING HOOK */}
             {cardIndex === 1 && (
-              <div className="space-y-4 animate-fade-in">
+              <div className="space-y-4.5 animate-fade-in">
                 {/* Step 1: Compliance Disclaimer */}
-                <div className="space-y-1">
-                  <span className="inline-block text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                <div className="space-y-2">
+                  <span className="inline-block text-xs font-bold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2.5 py-1 rounded border border-emerald-400/20">
                     Step 1: Frame the Scanner
                   </span>
-                  <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-3.5 shadow-inner">
-                    <p className="text-zinc-200 text-xs md:text-sm font-medium leading-relaxed font-sans">
-                      "Before I explain anything, <span className="text-emerald-300 font-semibold">this is not a medical test</span> and I'm not here to diagnose anything. Think of it as a <span className="text-emerald-300 font-semibold">nutrition mirror</span>. It gives us a quick look at your carotenoid trend, which reflects how your food, supplements, and lifestyle habits show up."
+                  <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-5 shadow-inner">
+                    <p className="text-zinc-50 text-base md:text-lg leading-relaxed font-sans font-semibold">
+                      "Before I explain anything, <span className="text-emerald-300 font-extrabold">this is not a medical test</span> and I'm not here to diagnose anything. Think of it as a <span className="text-emerald-300 font-extrabold">nutrition mirror</span>. It gives us a quick look at your carotenoid trend, which reflects how your food, supplements, and lifestyle habits show up."
                     </p>
                   </div>
                 </div>
 
                 {/* Step 2: The Scan Action */}
-                <div className="space-y-1">
-                  <span className="inline-block text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                <div className="space-y-2">
+                  <span className="inline-block text-xs font-bold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2.5 py-1 rounded border border-emerald-400/20">
                     Step 2: Run Scan
                   </span>
-                  <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-3 shadow-inner">
-                    <p className="text-zinc-200 text-xs leading-relaxed font-sans">
-                      "Let's do a quick <span className="text-emerald-300 font-semibold">15-second scan first</span>."
+                  <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-5 shadow-inner">
+                    <p className="text-zinc-50 text-base md:text-lg leading-relaxed font-sans font-semibold">
+                      "Let's do a quick <span className="text-emerald-300 font-extrabold">15-second scan first</span>."
                     </p>
                   </div>
                 </div>
 
                 {/* Step 3: Audience Hook Opener */}
-                <div className="space-y-1">
-                  <span className="inline-block text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                <div className="space-y-2">
+                  <span className="inline-block text-xs font-bold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2.5 py-1 rounded border border-emerald-400/20">
                     Step 3: Audience Hook ({audience.label})
                   </span>
-                  <div className="bg-emerald-400/5 border border-emerald-500/15 rounded-xl p-4 shadow-inner">
-                    <p className="text-zinc-100 text-sm md:text-base font-sans font-semibold leading-relaxed">
+                  <div className="bg-emerald-400/5 border border-emerald-500/15 rounded-xl p-5 md:p-6 shadow-inner">
+                    <p className="text-zinc-50 text-lg md:text-xl font-sans font-extrabold leading-relaxed">
                       "{audience.opener}"
                     </p>
                   </div>
@@ -621,16 +621,16 @@ function WizardView({
 
             {/* CARD 2: TAILORED QUESTIONS */}
             {cardIndex === 2 && (
-              <div className="space-y-3 animate-fade-in">
+              <div className="space-y-4.5 animate-fade-in">
                 {/* Intro Script */}
-                <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-3.5 shadow-inner">
-                  <p className="text-zinc-200 text-xs md:text-sm font-medium leading-relaxed font-sans">
-                    "Your score is in the <span className="text-emerald-300 font-semibold capitalize">{scoreTone[score]}</span> today. I would not overcomplicate this. To help personalize this, let me ask you a few questions..."
+                <div className="bg-zinc-950/40 border border-zinc-855 rounded-xl p-5 shadow-inner">
+                  <p className="text-zinc-50 text-base md:text-lg leading-relaxed font-sans font-semibold">
+                    "Your score is in the <span className="text-emerald-300 font-extrabold capitalize">{scoreTone[score]}</span> today. I would not overcomplicate this. To help personalize this, let me ask you a few questions..."
                   </p>
                 </div>
 
-                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Ask These Questions (Check off as you speak):</p>
-                <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                <p className="text-sm font-bold text-zinc-400 uppercase tracking-wider">Ask These Questions (Check off as you speak):</p>
+                <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1 animate-fade-in">
                   {audience.questions.map((q, idx) => {
                     const isChecked = !!checkedQuestions[idx];
                     return (
@@ -638,23 +638,23 @@ function WizardView({
                         key={idx}
                         onClick={() => handleToggleQuestion(idx)}
                         className={cx(
-                          "w-full flex items-start gap-3 rounded-xl border p-3 text-left text-xs transition cursor-pointer",
+                          "w-full flex items-start gap-4 rounded-xl border p-5 text-left text-base transition cursor-pointer",
                           isChecked 
-                            ? "border-emerald-500/30 bg-emerald-500/5 text-zinc-400" 
+                            ? "border-emerald-500/30 bg-emerald-500/5 text-zinc-450" 
                             : "border-zinc-800 bg-zinc-950/60 text-zinc-200 hover:border-zinc-700"
                         )}
                       >
                         <span className={cx(
-                          "flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold mt-0.5",
+                          "flex h-6 w-6 shrink-0 items-center justify-center rounded border text-sm font-extrabold mt-0.5",
                           isChecked ? "bg-emerald-400 border-emerald-400 text-zinc-950" : "border-zinc-700 text-transparent"
                         )}>
                           ✓
                         </span>
                         <div className="min-w-0">
-                          <span className={cx("font-bold text-[9px] uppercase tracking-wider block mb-0.5", isChecked ? "text-zinc-500" : "text-emerald-400")}>
+                          <span className={cx("font-extrabold text-xs uppercase tracking-wider block mb-0.5", isChecked ? "text-zinc-500" : "text-emerald-400")}>
                             Question {idx + 1}
                           </span>
-                          <p className={cx("font-sans leading-relaxed text-xs", isChecked && "line-through text-zinc-500")}>{q}</p>
+                          <p className={cx("font-sans leading-relaxed text-base md:text-lg font-semibold", isChecked && "line-through text-zinc-500")}>{q}</p>
                         </div>
                       </button>
                     );
@@ -665,34 +665,34 @@ function WizardView({
 
             {/* CARD 3: THE RECOMMENDATION & CLOSE */}
             {cardIndex === 3 && (
-              <div className="space-y-3 animate-fade-in max-h-[340px] overflow-y-auto pr-1">
+              <div className="space-y-4.5 animate-fade-in max-h-[400px] overflow-y-auto pr-1">
                 {/* Closing Script */}
-                <div className="bg-emerald-400/5 border border-emerald-500/10 rounded-xl p-4 space-y-2">
-                  <span className="inline-block text-[8px] font-extrabold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2 py-0.5 rounded border border-emerald-400/20">
+                <div className="bg-emerald-400/5 border border-emerald-500/10 rounded-xl p-5 md:p-6 space-y-3">
+                  <span className="inline-block text-xs font-bold text-emerald-400 uppercase tracking-wider bg-emerald-400/10 px-2.5 py-1 rounded border border-emerald-400/20">
                     Closing Explanation (Say This)
                   </span>
-                  <p className="text-zinc-100 text-xs md:text-sm font-sans leading-relaxed">
+                  <p className="text-zinc-50 text-base md:text-lg leading-relaxed font-sans font-semibold">
                     "Here is the simple read: your score gives us a starting point. The goal is not to shame the number. The goal is to pick one or two habits, support them if needed, and rescan so you can see progress."
                   </p>
-                  <p className="text-zinc-100 text-xs md:text-sm font-sans leading-relaxed">
-                    "Based on your setting and goals, I would suggest starting with: <span className="text-emerald-300 font-semibold">{recommendations.slice(0, 3).join(", ")}</span>."
+                  <p className="text-zinc-50 text-base md:text-lg leading-relaxed font-sans font-semibold">
+                    "Based on your setting and goals, I would suggest starting with: <span className="text-emerald-300 font-extrabold">{recommendations.slice(0, 3).join(", ")}</span>."
                   </p>
-                  <p className="text-zinc-100 text-xs md:text-sm font-sans leading-relaxed">
+                  <p className="text-zinc-50 text-base md:text-lg leading-relaxed font-sans font-semibold">
                     "The next step is simple: try the plan for 30 days, rescan, and see what changed."
                   </p>
                 </div>
 
-                <div className="grid gap-2 grid-cols-1 sm:grid-cols-2">
+                <div className="grid gap-3.5 grid-cols-1 sm:grid-cols-2">
                   {/* Score meaning detail */}
-                  <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3 space-y-1">
-                    <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Score Meaning ({score})</p>
-                    <p className="text-zinc-300 text-[11px] font-sans leading-relaxed">{scoreGuidance[score]}</p>
+                  <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-5 space-y-2">
+                    <p className="text-sm font-bold text-zinc-400 uppercase tracking-wider leading-none">Score Meaning ({score})</p>
+                    <p className="text-zinc-300 text-sm md:text-base font-sans leading-relaxed font-medium">{scoreGuidance[score]}</p>
                   </div>
 
                   {/* Next Step detail */}
-                  <div className="rounded-xl bg-zinc-950 border border-zinc-855 p-3 space-y-1">
-                    <p className="text-[9px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Next Action</p>
-                    <p className="text-zinc-300 text-[11px] font-sans leading-relaxed">{audience.nextStep}</p>
+                  <div className="rounded-xl bg-zinc-950 border border-zinc-855 p-5 space-y-2">
+                    <p className="text-sm font-bold text-zinc-400 uppercase tracking-wider leading-none">Next Action</p>
+                    <p className="text-zinc-300 text-sm md:text-base font-sans leading-relaxed font-medium">{audience.nextStep}</p>
                   </div>
                 </div>
               </div>
@@ -705,7 +705,7 @@ function WizardView({
             {cardIndex > 1 ? (
               <button
                 onClick={handleBack}
-                className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-xs font-semibold text-zinc-300 hover:border-zinc-700 transition cursor-pointer"
+                className="rounded-xl border border-zinc-800 bg-zinc-950 px-6 py-3.5 text-base font-bold text-zinc-300 hover:border-zinc-700 transition cursor-pointer"
               >
                 ← Back
               </button>
@@ -716,21 +716,21 @@ function WizardView({
             {cardIndex < 3 ? (
               <button
                 onClick={handleNext}
-                className="rounded-xl bg-emerald-400 px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer"
+                className="rounded-xl bg-emerald-400 px-7 py-3.5 text-base font-extrabold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer shadow-md shadow-emerald-400/10"
               >
                 {cardIndex === 1 ? "Start Assessment →" : "See Recommendations →"}
               </button>
             ) : (
-              <div className="flex gap-2 flex-1">
+              <div className="flex gap-2.5 flex-1">
                 <button
                   onClick={onSaveClient}
-                  className="flex-1 rounded-xl bg-emerald-400 py-2.5 text-center text-xs font-bold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer shadow-md shadow-emerald-400/5"
+                  className="flex-1 rounded-xl bg-emerald-400 py-3.5 text-center text-base font-extrabold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer shadow-md shadow-emerald-400/10"
                 >
                   Save Client
                 </button>
                 <button
                   onClick={handleReset}
-                  className="rounded-xl border border-zinc-855 bg-zinc-900 px-3 py-2.5 text-center text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition cursor-pointer"
+                  className="rounded-xl border border-zinc-855 bg-zinc-900 px-5 py-3.5 text-center text-base font-bold text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition cursor-pointer"
                 >
                   Reset
                 </button>
