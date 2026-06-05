@@ -508,6 +508,30 @@ function WizardView({
               </div>
             </div>
 
+            {/* Goals Pill Row */}
+            <div>
+              <label className="text-sm font-bold text-zinc-400 uppercase tracking-wider block mb-2">Client Goals</label>
+              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                {goals.map((goal) => {
+                  const isSelected = selectedGoals.includes(goal);
+                  return (
+                    <button
+                      key={goal}
+                      onClick={() => toggleGoal(goal)}
+                      className={cx(
+                        "rounded-full px-3.5 py-2 text-sm font-semibold border transition cursor-pointer shrink-0",
+                        isSelected 
+                          ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-extrabold" 
+                          : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-650"
+                      )}
+                    >
+                      {goal} {isSelected && "✓"}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Scan Color Row */}
             <div>
               <label className="text-sm font-bold text-zinc-400 uppercase tracking-wider block mb-2">Scan Score Color</label>
@@ -535,30 +559,6 @@ function WizardView({
                     >
                       <span className={cx("h-3 w-3 rounded-full shadow-inner shrink-0", bgColors[item])} />
                       {item}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Goals Pill Row */}
-            <div>
-              <label className="text-sm font-bold text-zinc-400 uppercase tracking-wider block mb-2">Client Goals</label>
-              <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                {goals.map((goal) => {
-                  const isSelected = selectedGoals.includes(goal);
-                  return (
-                    <button
-                      key={goal}
-                      onClick={() => toggleGoal(goal)}
-                      className={cx(
-                        "rounded-full px-3.5 py-2 text-sm font-semibold border transition cursor-pointer shrink-0",
-                        isSelected 
-                          ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-extrabold" 
-                          : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-650"
-                      )}
-                    >
-                      {goal} {isSelected && "✓"}
                     </button>
                   );
                 })}
@@ -1566,23 +1566,23 @@ Output:
                   </div>
 
                   <div className="space-y-3">
-                    <FieldLabel>Scan color</FieldLabel>
-                    <div className="grid grid-cols-3 gap-2">
-                      {Object.keys(scoreGuidance).map((item) => (
-                        <OptionButton key={item} active={score === item} onClick={() => setScore(item)}>
-                          <span className="capitalize">{item}</span>
-                        </OptionButton>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
                     <FieldLabel>Primary goals</FieldLabel>
                     <div className="flex flex-wrap gap-2">
                       {goals.map((goal) => (
                         <button key={goal} onClick={() => toggleGoal(goal)} className={cx("rounded-full border px-3 py-2 text-sm transition", selectedGoals.includes(goal) ? "border-emerald-400 bg-emerald-400 text-zinc-950" : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-600")}>
                           {goal}
                         </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <FieldLabel>Scan color</FieldLabel>
+                    <div className="grid grid-cols-3 gap-2">
+                      {Object.keys(scoreGuidance).map((item) => (
+                        <OptionButton key={item} active={score === item} onClick={() => setScore(item)}>
+                          <span className="capitalize">{item}</span>
+                        </OptionButton>
                       ))}
                     </div>
                   </div>
