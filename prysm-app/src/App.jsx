@@ -1008,29 +1008,41 @@ Output:
             <p className="max-w-3xl text-sm text-zinc-300">Scanner-first client management system to convert scans to recurring pipeline support.</p>
           </div>
 
-          {/* Responsive Layout Switcher Toggle */}
-          <div className="flex items-center gap-1 bg-zinc-900/80 border border-zinc-800 rounded-xl p-1 shrink-0 self-start md:self-center">
+          {/* Responsive Layout Switcher Toggle & Logout */}
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0 self-start md:self-center">
+            <div className="flex items-center gap-1 bg-zinc-900/80 border border-zinc-800 rounded-xl p-1">
+              <button 
+                onClick={() => setLayoutMode("desktop")} 
+                className={cx(
+                  "rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer", 
+                  layoutMode === "desktop" 
+                    ? "bg-emerald-400 text-zinc-950 font-bold" 
+                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+                )}
+              >
+                Desktop Grid
+              </button>
+              <button 
+                onClick={() => setLayoutMode("mobile-wizard")} 
+                className={cx(
+                  "rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer", 
+                  layoutMode === "mobile-wizard" 
+                    ? "bg-emerald-400 text-zinc-950 font-bold" 
+                    : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+                )}
+              >
+                Mobile Wizard
+              </button>
+            </div>
+
             <button 
-              onClick={() => setLayoutMode("desktop")} 
-              className={cx(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer", 
-                layoutMode === "desktop" 
-                  ? "bg-emerald-400 text-zinc-950 font-bold" 
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-              )}
+              onClick={() => {
+                localStorage.removeItem("prysm_user");
+                setCurrentUser(null);
+              }}
+              className="rounded-xl border border-zinc-800 bg-zinc-900/80 px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-950/20 hover:border-red-900/30 transition cursor-pointer shadow-sm"
             >
-              Desktop Grid
-            </button>
-            <button 
-              onClick={() => setLayoutMode("mobile-wizard")} 
-              className={cx(
-                "rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer", 
-                layoutMode === "mobile-wizard" 
-                  ? "bg-emerald-400 text-zinc-950 font-bold" 
-                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
-              )}
-            >
-              Mobile Wizard
+              Logout Account
             </button>
           </div>
         </section>
