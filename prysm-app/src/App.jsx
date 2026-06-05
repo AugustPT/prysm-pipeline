@@ -353,6 +353,343 @@ function LoginView({ onLogin }) {
   );
 }
 
+function WizardView({
+  presenterName,
+  onPresenterNameChange,
+  profile,
+  setProfile,
+  audienceId,
+  setAudienceId,
+  score,
+  setScore,
+  selectedGoals,
+  toggleGoal,
+  recommendations,
+  audience,
+  scoreTone,
+  scoreGuidance,
+  goals,
+  iconMap,
+  wizardStep,
+  setWizardStep,
+  onSaveClient
+}) {
+  const steps = [
+    { num: 1, label: "Presenter" },
+    { num: 2, label: "Audience" },
+    { num: 3, label: "Scan Score" },
+    { num: 4, label: "Goals" },
+    { num: 5, label: "Script" }
+  ];
+
+  const handleNext = () => {
+    if (wizardStep < 5) setWizardStep(wizardStep + 1);
+  };
+
+  const handleBack = () => {
+    if (wizardStep > 1) setWizardStep(wizardStep - 1);
+  };
+
+  const handleReset = () => {
+    setWizardStep(1);
+  };
+
+  return (
+    <Card className="overflow-hidden">
+      {/* Wizard Progress Bar */}
+      <div className="border-b border-zinc-800 bg-zinc-950 p-4">
+        <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
+          <span>Step {wizardStep} of 5</span>
+          <span className="font-semibold text-emerald-400">{steps[wizardStep - 1].label}</span>
+        </div>
+        <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
+          <div 
+            className="h-full bg-emerald-400 transition-all duration-300 shadow-md shadow-emerald-400/20"
+            style={{ width: `${(wizardStep / 5) * 100}%` }}
+          />
+        </div>
+        {/* Step dots for quick visualization */}
+        <div className="flex justify-between mt-3 px-1">
+          {steps.map((s) => (
+            <button 
+              key={s.num} 
+              onClick={() => setWizardStep(s.num)}
+              className={cx(
+                "h-6 px-2.5 rounded-full text-[10px] font-semibold transition cursor-pointer flex items-center justify-center",
+                wizardStep === s.num 
+                  ? "bg-emerald-400 text-zinc-950 animate-pulse" 
+                  : wizardStep > s.num
+                    ? "bg-zinc-800 text-emerald-400 border border-emerald-400/20"
+                    : "bg-zinc-900 text-zinc-500"
+              )}
+            >
+              {s.num}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Step Content */}
+      <div className="p-5 md:p-6 min-h-[320px] flex flex-col justify-between">
+        <div className="space-y-5">
+          {/* STEP 1: PRESENTER */}
+          {wizardStep === 1 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="space-y-1">
+                <h3 className="text-xl font-semibold text-zinc-100">Presenter Profile</h3>
+                <p className="text-sm text-zinc-400">Confirm who is presenting. This name will automatically populate the sales scripts.</p>
+              </div>
+              <div className="space-y-2">
+                <FieldLabel>Presenter name</FieldLabel>
+                <input 
+                  value={presenterName} 
+                  onChange={(e) => onPresenterNameChange(e.target.value)} 
+                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400"
+                  placeholder="Bobby"
+                />
+              </div>
+              <div className="rounded-xl bg-zinc-950 border border-zinc-800 p-4 space-y-2">
+                <p className="text-xs text-zinc-400">Current Scanner: <span className="font-semibold text-zinc-200">{profile.scannerModel}</span></p>
+                <p className="text-xs text-zinc-400">Monthly Scan Goal: <span className="font-semibold text-zinc-200">{profile.scanGoal} scans</span></p>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 2: AUDIENCE */}
+          {wizardStep === 2 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="space-y-1">
+                <h3 className="text-xl font-semibold text-zinc-100">Who are you talking to?</h3>
+                <p className="text-sm text-zinc-400">Select the client setting to adapt the conversation structure.</p>
+              </div>
+              <div className="grid grid-cols-1 gap-2 max-h-[280px] overflow-y-auto pr-1">
+                {audiences.map((item) => (
+                  <button 
+                    key={item.id} 
+                    onClick={() => {
+                      setAudienceId(item.id);
+                      // Auto progress to next step for buttery smooth mobile flow
+                      setTimeout(() => setWizardStep(3), 250);
+                    }}
+                    className={cx(
+                      "flex items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition cursor-pointer", 
+                      audienceId === item.id 
+                        ? "border-emerald-400 bg-emerald-400/10 text-emerald-400 font-semibold" 
+                        : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700"
+                    )}
+                  >
+                    <span className="text-xl">{iconMap[item.id]}</span>
+                    <div className="flex-1">
+                      <p className="font-medium leading-none">{item.label}</p>
+                      <p className="text-[11px] text-zinc-500 mt-1 truncate max-w-[260px]">{item.frame}</p>
+                    </div>
+                    {audienceId === item.id && <span className="text-emerald-400 text-xs">✓ selected</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3: SCAN COLOR */}
+          {wizardStep === 3 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="space-y-1">
+                <h3 className="text-xl font-semibold text-zinc-100">Scan Color Result</h3>
+                <p className="text-sm text-zinc-400">Run the physical 15-second scan, then choose the resulting antioxidant color band.</p>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.keys(scoreGuidance).map((item) => {
+                  const colors = {
+                    red: "border-red-500/20 text-red-400 bg-red-950/20 hover:border-red-400",
+                    orange: "border-orange-500/20 text-orange-400 bg-orange-950/20 hover:border-orange-400",
+                    yellow: "border-yellow-500/20 text-yellow-300 bg-yellow-950/20 hover:border-yellow-300",
+                    green: "border-emerald-500/20 text-emerald-400 bg-emerald-950/20 hover:border-emerald-400",
+                    blue: "border-cyan-500/20 text-cyan-400 bg-cyan-950/20 hover:border-cyan-400",
+                    purple: "border-purple-500/20 text-purple-400 bg-purple-950/20 hover:border-purple-400"
+                  };
+                  const activeColors = {
+                    red: "border-red-400 bg-red-500/20 text-red-200 font-bold",
+                    orange: "border-orange-400 bg-orange-500/20 text-orange-200 font-bold",
+                    yellow: "border-yellow-300 bg-yellow-500/20 text-yellow-100 font-bold",
+                    green: "border-emerald-400 bg-emerald-500/20 text-emerald-200 font-bold",
+                    blue: "border-cyan-400 bg-cyan-500/20 text-cyan-200 font-bold",
+                    purple: "border-purple-400 bg-purple-500/20 text-purple-200 font-bold"
+                  };
+                  return (
+                    <button 
+                      key={item} 
+                      onClick={() => {
+                        setScore(item);
+                        setTimeout(() => setWizardStep(4), 250);
+                      }}
+                      className={cx(
+                        "rounded-xl border p-4 text-center text-sm capitalize transition cursor-pointer",
+                        score === item ? activeColors[item] : colors[item]
+                      )}
+                    >
+                      <div className="flex flex-col items-center gap-1.5">
+                        <span className={cx("h-4 w-4 rounded-full shadow-inner", 
+                          item === "red" ? "bg-red-500" :
+                          item === "orange" ? "bg-orange-500" :
+                          item === "yellow" ? "bg-yellow-400" :
+                          item === "green" ? "bg-emerald-500" :
+                          item === "blue" ? "bg-cyan-500" : "bg-purple-500"
+                        )} />
+                        {item}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 4: PRIMARY GOALS */}
+          {wizardStep === 4 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="space-y-1">
+                <h3 className="text-xl font-semibold text-zinc-100">Primary Goals</h3>
+                <p className="text-sm text-zinc-400">Select what the client wants to improve. We'll use this to tailor recommendations.</p>
+              </div>
+              <div className="flex flex-wrap gap-2 max-h-[220px] overflow-y-auto pr-1">
+                {goals.map((goal) => (
+                  <button 
+                    key={goal} 
+                    onClick={() => toggleGoal(goal)} 
+                    className={cx(
+                      "rounded-full border px-3 py-2 text-xs transition cursor-pointer", 
+                      selectedGoals.includes(goal) 
+                        ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-semibold" 
+                        : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700"
+                    )}
+                  >
+                    {goal} {selectedGoals.includes(goal) && "✓"}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* STEP 5: TIMELINE SCRIPT */}
+          {wizardStep === 5 && (
+            <div className="space-y-4 animate-fade-in">
+              <div className="space-y-1 border-b border-zinc-800 pb-3 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-zinc-100">Generated Script</h3>
+                  <p className="text-[11px] text-zinc-400">Read this timeline flow to guide the presentation.</p>
+                </div>
+                <div className="flex items-center gap-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1">
+                  <span className="text-xs">{iconMap[audienceId]}</span>
+                  <span className="capitalize text-[11px] font-bold text-zinc-200">{score}</span>
+                </div>
+              </div>
+
+              {/* Stacked Vertical Timeline Script */}
+              <div className="space-y-4 max-h-[360px] overflow-y-auto pr-1 text-sm font-sans leading-relaxed">
+                
+                {/* 1. Opener */}
+                <div className="relative pl-6 border-l border-zinc-800">
+                  <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-emerald-400 border border-zinc-950 animate-pulse" />
+                  <p className="font-semibold text-emerald-400 text-xs uppercase tracking-wider">1. Open the Conversation</p>
+                  <p className="text-zinc-500 text-xs mt-0.5 italic">{audience.frame}</p>
+                  <div className="mt-2 rounded-xl bg-zinc-950 border border-zinc-850 p-3 text-zinc-100 text-xs leading-relaxed font-sans shadow-inner">
+                    "{audience.opener}"
+                  </div>
+                </div>
+
+                {/* 2. Score Guidance */}
+                <div className="relative pl-6 border-l border-zinc-800">
+                  <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-emerald-400 border border-zinc-950" />
+                  <p className="font-semibold text-emerald-400 text-xs uppercase tracking-wider">2. Explain the Score</p>
+                  <p className="text-zinc-500 text-xs mt-0.5 italic">Tone: {scoreTone[score]}</p>
+                  <div className="mt-2 rounded-xl bg-zinc-950 border border-zinc-850 p-3 text-zinc-200 text-xs leading-relaxed font-sans shadow-inner">
+                    {scoreGuidance[score]}
+                  </div>
+                </div>
+
+                {/* 3. Core Questions */}
+                <div className="relative pl-6 border-l border-zinc-800">
+                  <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-emerald-400 border border-zinc-950" />
+                  <p className="font-semibold text-emerald-400 text-xs uppercase tracking-wider">3. Ask Tailored Questions</p>
+                  <div className="mt-2 space-y-1.5">
+                    {audience.questions.map((q, idx) => (
+                      <div key={idx} className="flex gap-2 rounded-lg bg-zinc-950/60 border border-zinc-900 p-2.5 text-xs text-zinc-200 font-sans">
+                        <span className="text-emerald-400 font-bold">{idx + 1}</span>
+                        <p>{q}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 4. Product recommendations & next step */}
+                <div className="relative pl-6">
+                  <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-emerald-400 border border-zinc-950" />
+                  <p className="font-semibold text-emerald-400 text-xs uppercase tracking-wider">4. Next Step & Product Fit</p>
+                  <div className="mt-2 space-y-2">
+                    <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3 text-xs text-zinc-200 font-sans shadow-inner">
+                      <p className="font-medium text-emerald-200 mb-1">Action Step:</p>
+                      {audience.nextStep}
+                    </div>
+                    <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3 text-xs font-sans shadow-inner">
+                      <p className="font-medium text-zinc-400 mb-1.5">Tailored recommendations:</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {recommendations.map((item) => (
+                          <span key={item} className="bg-zinc-800 text-zinc-300 rounded px-2 py-0.5 text-[10px] border border-zinc-700">{item}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              {/* CTAs */}
+              <div className="pt-3 border-t border-zinc-800 flex gap-2">
+                <button 
+                  onClick={onSaveClient}
+                  className="flex-1 rounded-xl bg-emerald-400 py-3 text-center text-xs font-bold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer"
+                >
+                  Save Client to Pipeline
+                </button>
+                <button 
+                  onClick={handleReset}
+                  className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-center text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition cursor-pointer"
+                >
+                  New Scan
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Navigation Actions */}
+        {wizardStep < 5 && (
+          <div className="mt-6 pt-4 border-t border-zinc-800/80 flex items-center justify-between">
+            <button 
+              onClick={handleBack} 
+              disabled={wizardStep === 1}
+              className={cx(
+                "rounded-xl px-4 py-2.5 text-xs font-semibold border transition cursor-pointer",
+                wizardStep === 1 
+                  ? "border-zinc-900 bg-zinc-950 text-zinc-600 cursor-not-allowed" 
+                  : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700"
+              )}
+            >
+              Back
+            </button>
+            <button 
+              onClick={handleNext}
+              className="rounded-xl bg-emerald-400 px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer"
+            >
+              {wizardStep === 4 ? "Generate Script" : "Continue"}
+            </button>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+}
+
 export default function PrysmPipeline() {
   // Sales Session State
   const [currentUser, setCurrentUser] = useState(() => {
@@ -398,6 +735,40 @@ export default function PrysmPipeline() {
   });
 
   const [presenterName, setPresenterName] = useState(profile.name);
+
+  // Responsive / Layout Mode State
+  const [isMobileViewport, setIsMobileViewport] = useState(() => {
+    try {
+      return window.innerWidth < 768;
+    } catch {
+      return false;
+    }
+  });
+
+  const [layoutMode, setLayoutMode] = useState(() => {
+    try {
+      return window.innerWidth < 768 ? "mobile-wizard" : "desktop";
+    } catch {
+      return "desktop";
+    }
+  });
+
+  const [wizardStep, setWizardStep] = useState(1);
+
+  // Viewport resize listener to automatically adjust layout defaults
+  React.useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768;
+      setIsMobileViewport(isMobile);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Sync default mode on viewport changes, but allow manual toggle overrides
+  React.useEffect(() => {
+    setLayoutMode(isMobileViewport ? "mobile-wizard" : "desktop");
+  }, [isMobileViewport]);
 
   // Sync builder presenter name to profile
   const handlePresenterNameChange = (name) => {
@@ -573,7 +944,7 @@ Output:
       <div className="mx-auto max-w-6xl space-y-6">
         
         {/* App Title Banner */}
-        <section className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <section className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-zinc-900 pb-2">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Badge>Sales Dashboard</Badge>
@@ -581,6 +952,32 @@ Output:
             </div>
             <h1 className="text-3xl font-semibold tracking-tight md:text-5xl">Prysm Pipeline</h1>
             <p className="max-w-3xl text-sm text-zinc-300">Scanner-first client management system to convert scans to recurring pipeline support.</p>
+          </div>
+
+          {/* Responsive Layout Switcher Toggle */}
+          <div className="flex items-center gap-1 bg-zinc-900/80 border border-zinc-800 rounded-xl p-1 shrink-0 self-start md:self-center">
+            <button 
+              onClick={() => setLayoutMode("desktop")} 
+              className={cx(
+                "rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer", 
+                layoutMode === "desktop" 
+                  ? "bg-emerald-400 text-zinc-950 font-bold" 
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+              )}
+            >
+              Desktop Grid
+            </button>
+            <button 
+              onClick={() => setLayoutMode("mobile-wizard")} 
+              className={cx(
+                "rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer", 
+                layoutMode === "mobile-wizard" 
+                  ? "bg-emerald-400 text-zinc-950 font-bold" 
+                  : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800"
+              )}
+            >
+              Mobile Wizard
+            </button>
           </div>
         </section>
 
@@ -597,107 +994,131 @@ Output:
 
         {/* Builder View */}
         {activeTab === "builder" && (
-          <section className="grid gap-5 md:grid-cols-[1fr_1.2fr]">
-            <Card>
-              <div className="space-y-5 p-5">
-                <div className="space-y-3">
-                  <FieldLabel>Presenter name</FieldLabel>
-                  <input 
-                    value={presenterName} 
-                    onChange={(event) => handlePresenterNameChange(event.target.value)} 
-                    className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400" 
-                  />
-                </div>
-
-                <div className="space-y-3">
-                  <FieldLabel>Who are we talking to?</FieldLabel>
-                  <div className="grid grid-cols-2 gap-2">
-                    {audiences.map((item) => (
-                      <OptionButton key={item.id} active={audienceId === item.id} onClick={() => setAudienceId(item.id)}>
-                        <span className="mr-2">{iconMap[item.id]}</span>
-                        {item.label}
-                      </OptionButton>
-                    ))}
+          layoutMode === "desktop" ? (
+            <section className="grid gap-5 md:grid-cols-[1fr_1.2fr]">
+              <Card>
+                <div className="space-y-5 p-5">
+                  <div className="space-y-3">
+                    <FieldLabel>Presenter name</FieldLabel>
+                    <input 
+                      value={presenterName} 
+                      onChange={(event) => handlePresenterNameChange(event.target.value)} 
+                      className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400" 
+                    />
                   </div>
-                </div>
 
-                <div className="space-y-3">
-                  <FieldLabel>Scan color</FieldLabel>
-                  <div className="grid grid-cols-3 gap-2">
-                    {Object.keys(scoreGuidance).map((item) => (
-                      <OptionButton key={item} active={score === item} onClick={() => setScore(item)}>
-                        <span className="capitalize">{item}</span>
-                      </OptionButton>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <FieldLabel>Primary goals</FieldLabel>
-                  <div className="flex flex-wrap gap-2">
-                    {goals.map((goal) => (
-                      <button key={goal} onClick={() => toggleGoal(goal)} className={cx("rounded-full border px-3 py-2 text-sm transition", selectedGoals.includes(goal) ? "border-emerald-400 bg-emerald-400 text-zinc-950" : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-600")}>
-                        {goal}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <Card>
-              <div className="space-y-5 p-6">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-400/15 text-3xl">{iconMap[audience.id]}</div>
-                  <div>
-                    <h2 className="text-2xl font-semibold">{audience.label}</h2>
-                    <p className="text-zinc-400">{audience.frame}</p>
-                  </div>
-                </div>
-
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                  <p className="mb-1 text-sm text-zinc-400">Opening line</p>
-                  <p className="text-lg">{audience.opener}</p>
-                </div>
-
-                <div className="space-y-2">
-                  <p className="text-sm text-zinc-400">Core questions</p>
-                  {audience.questions.map((question, index) => (
-                    <div key={question} className="flex gap-3 rounded-xl border border-zinc-800 bg-zinc-950/70 p-3">
-                      <span className="font-semibold text-emerald-300">{index + 1}</span>
-                      <p>{question}</p>
+                  <div className="space-y-3">
+                    <FieldLabel>Who are we talking to?</FieldLabel>
+                    <div className="grid grid-cols-2 gap-2">
+                      {audiences.map((item) => (
+                        <OptionButton key={item.id} active={audienceId === item.id} onClick={() => setAudienceId(item.id)}>
+                          <span className="mr-2">{iconMap[item.id]}</span>
+                          {item.label}
+                        </OptionButton>
+                      ))}
                     </div>
-                  ))}
-                </div>
-
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                    <p className="mb-2 text-sm text-zinc-400">Score guidance</p>
-                    <p>{scoreGuidance[score]}</p>
                   </div>
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
-                    <p className="mb-2 text-sm text-zinc-400">Possible product fit</p>
+
+                  <div className="space-y-3">
+                    <FieldLabel>Scan color</FieldLabel>
+                    <div className="grid grid-cols-3 gap-2">
+                      {Object.keys(scoreGuidance).map((item) => (
+                        <OptionButton key={item} active={score === item} onClick={() => setScore(item)}>
+                          <span className="capitalize">{item}</span>
+                        </OptionButton>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <FieldLabel>Primary goals</FieldLabel>
                     <div className="flex flex-wrap gap-2">
-                      {recommendations.map((item) => <ProductPill key={item}>{item}</ProductPill>)}
+                      {goals.map((goal) => (
+                        <button key={goal} onClick={() => toggleGoal(goal)} className={cx("rounded-full border px-3 py-2 text-sm transition", selectedGoals.includes(goal) ? "border-emerald-400 bg-emerald-400 text-zinc-950" : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-600")}>
+                          {goal}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 </div>
+              </Card>
 
-                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <p className="mb-1 text-sm text-emerald-200">Recommended next step</p>
-                    <p>{audience.nextStep}</p>
+              <Card>
+                <div className="space-y-5 p-6">
+                  <div className="flex items-start gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-400/15 text-3xl">{iconMap[audience.id]}</div>
+                    <div>
+                      <h2 className="text-2xl font-semibold">{audience.label}</h2>
+                      <p className="text-zinc-400">{audience.frame}</p>
+                    </div>
                   </div>
-                  <button 
-                    onClick={() => setShowSaveModal(true)}
-                    className="shrink-0 rounded-xl bg-emerald-400 px-4 py-2.5 text-xs font-semibold text-zinc-950 hover:bg-emerald-300 transition duration-200 cursor-pointer shadow-md shadow-emerald-400/5"
-                  >
-                    Save Client to Pipeline
-                  </button>
+
+                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                    <p className="mb-1 text-sm text-zinc-400">Opening line</p>
+                    <p className="text-lg">{audience.opener}</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <p className="text-sm text-zinc-400">Core questions</p>
+                    {audience.questions.map((question, index) => (
+                      <div key={question} className="flex gap-3 rounded-xl border border-zinc-800 bg-zinc-950/70 p-3">
+                        <span className="font-semibold text-emerald-300">{index + 1}</span>
+                        <p>{question}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                      <p className="mb-2 text-sm text-zinc-400">Score guidance</p>
+                      <p>{scoreGuidance[score]}</p>
+                    </div>
+                    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+                      <p className="mb-2 text-sm text-zinc-400">Possible product fit</p>
+                      <div className="flex flex-wrap gap-2">
+                        {recommendations.map((item) => <ProductPill key={item}>{item}</ProductPill>)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                      <p className="mb-1 text-sm text-emerald-200">Recommended next step</p>
+                      <p>{audience.nextStep}</p>
+                    </div>
+                    <button 
+                      onClick={() => setShowSaveModal(true)}
+                      className="shrink-0 rounded-xl bg-emerald-400 px-4 py-2.5 text-xs font-semibold text-zinc-950 hover:bg-emerald-300 transition duration-200 cursor-pointer shadow-md shadow-emerald-400/5"
+                    >
+                      Save Client to Pipeline
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          </section>
+              </Card>
+            </section>
+          ) : (
+            <WizardView
+              presenterName={presenterName}
+              onPresenterNameChange={handlePresenterNameChange}
+              profile={profile}
+              setProfile={setProfile}
+              audienceId={audienceId}
+              setAudienceId={setAudienceId}
+              score={score}
+              setScore={setScore}
+              selectedGoals={selectedGoals}
+              toggleGoal={toggleGoal}
+              recommendations={recommendations}
+              audience={audience}
+              scoreTone={scoreTone}
+              scoreGuidance={scoreGuidance}
+              goals={goals}
+              iconMap={iconMap}
+              wizardStep={wizardStep}
+              setWizardStep={setWizardStep}
+              onSaveClient={() => setShowSaveModal(true)}
+            />
+          )
         )}
 
         {/* Script View */}
