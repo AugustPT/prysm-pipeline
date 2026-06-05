@@ -1,0 +1,330 @@
+[
+  {
+    "id": "open-app",
+    "narration": "This is the Prysm Pipeline app. It's a scanner-first conversation tool. The goal is to help someone run a simple 15–20 minute wellness conversation based on the person, their scan color, and what they care about.",
+    "actions": [
+      { "type": "open_app" },
+      { "type": "wait", "ms": 3000 },
+      { "type": "verify", "target": "app_visible", "verifyType": "visible" },
+      { "type": "screenshot", "name": "01-open-app" }
+    ],
+    "pauseMs": 2000
+  },
+  {
+    "id": "builder-tab",
+    "narration": "Click Builder at the top. This is the main setup screen.",
+    "actions": [
+      { "type": "scroll_to", "target": "builder-tab", "block": "center" },
+      { "type": "highlight", "target": "builder-tab", "label": "Builder Tab", "dim": false },
+      { "type": "wait", "ms": 1000 },
+      { "type": "click", "target": "builder-tab" },
+      { "type": "wait", "ms": 500 },
+      { "type": "verify", "target": "presenter-name-label", "verifyType": "visible" },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "02-builder-tab" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "presenter-name",
+    "narration": "On the left, you'll see Presenter name. This is where you type the name of the person running the demo. Whatever name is here will show up later inside the script.",
+    "actions": [
+      { "type": "scroll_to", "target": "presenter-name-label", "block": "center" },
+      { "type": "highlight", "target": "presenter-name-field", "label": "Presenter Name" },
+      { "type": "wait", "ms": 1500 },
+      { "type": "clear_highlight" },
+      { "type": "type", "target": "presenter-name-field", "value": "Alex", "clearFirst": true },
+      { "type": "wait", "ms": 800 },
+      { "type": "verify", "target": "presenter-name-field", "verifyType": "input_value", "expected": "Alex" },
+      { "type": "highlight", "target": "presenter-name-field", "label": "Name entered: Alex", "dim": false },
+      { "type": "wait", "ms": 1000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "03-presenter-name" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "audience-section",
+    "narration": "Below that, you'll see Who are we talking to? This is where you choose the type of person in front of you. For example, you can click Gym / Trainer, Athlete / Event Attendee, BNI / Business Owner, Parents / Schools, Salon / Spa, Yoga / Wellness Community, or Scanner Business Candidate.",
+    "actions": [
+      { "type": "scroll_to", "target": "audience-selector-panel", "block": "start" },
+      { "type": "highlight", "target": "audience-selector-panel", "label": "Who are we talking to?" },
+      { "type": "wait", "ms": 2000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "04-audience-section" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "audience-select-yoga",
+    "narration": "When you click one of these, look at the right side. The app changes the conversation to fit that person. You'll see the opening line change, the core questions change, the recommended next step change, and the conversation frame change.",
+    "actions": [
+      { "type": "scroll_to", "target": "audience-yoga-wellness-community", "block": "center" },
+      { "type": "highlight", "target": "audience-yoga-wellness-community", "label": "Selecting: Yoga / Wellness Community", "dim": false },
+      { "type": "wait", "ms": 1000 },
+      { "type": "click", "target": "audience-yoga-wellness-community" },
+      { "type": "wait", "ms": 800 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "05-audience-yoga-selected" },
+      { "type": "scroll_to", "target": "opening-line-panel", "block": "start" },
+      { "type": "wait", "ms": 500 },
+      { "type": "highlight", "target": "opening-line-panel", "label": "Opening line — updated for Yoga audience" },
+      { "type": "wait", "ms": 2000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "06-opening-line-updated" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "audience-right-side-panels",
+    "narration": "So instead of giving the same pitch to everyone, this helps you talk to the person in the way that makes sense for them.",
+    "actions": [
+      { "type": "scroll_to", "target": "core-questions-panel", "block": "start" },
+      { "type": "highlight", "target": "core-questions-panel", "label": "Core questions — tailored to Yoga audience" },
+      { "type": "wait", "ms": 2000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "07-core-questions-updated" },
+      { "type": "scroll_to", "target": "recommended-next-step-panel", "block": "center" },
+      { "type": "highlight", "target": "recommended-next-step-panel", "label": "Recommended next step" },
+      { "type": "wait", "ms": 2000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "08-recommended-next-step" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "scan-color-section",
+    "narration": "Now look under Scan color. This is where you choose the color from their scan: Red, Orange, Yellow, Green, Blue, or Purple.",
+    "actions": [
+      { "type": "scroll_to", "target": "scan-color-panel", "block": "center" },
+      { "type": "highlight", "target": "scan-color-panel", "label": "Scan Color" },
+      { "type": "wait", "ms": 2000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "09-scan-color-section" }
+    ],
+    "pauseMs": 1000
+  },
+  {
+    "id": "scan-color-select-green",
+    "narration": "When you click a scan color, look on the right side at Score guidance. That section tells you how to explain their scan result in a simple, non-shaming way.",
+    "actions": [
+      { "type": "scroll_to", "target": "scan-color-green", "block": "center" },
+      { "type": "highlight", "target": "scan-color-green", "label": "Selecting: Green", "dim": false },
+      { "type": "wait", "ms": 800 },
+      { "type": "click", "target": "scan-color-green" },
+      { "type": "wait", "ms": 800 },
+      { "type": "clear_highlight" },
+      { "type": "verify", "target": "scan-color-green", "verifyType": "visible" },
+      { "type": "screenshot", "name": "10-scan-color-green-selected" },
+      { "type": "scroll_to", "target": "score-guidance-panel", "block": "center" },
+      { "type": "highlight", "target": "score-guidance-panel", "label": "Score guidance — updated for Green" },
+      { "type": "wait", "ms": 2000 },
+      { "type": "verify", "target": "score-guidance-panel", "verifyType": "visible" },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "11-score-guidance-green" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "primary-goals-section",
+    "narration": "Now go down to Primary goals. This is where you choose what the person cares about. Maybe they care about energy, sleep, stress, nutrition gaps, skin/beauty, gut comfort, athletic recovery, extra income, or placing a scanner.",
+    "actions": [
+      { "type": "scroll_to", "target": "primary-goals-panel", "block": "center" },
+      { "type": "highlight", "target": "primary-goals-panel", "label": "Primary Goals" },
+      { "type": "wait", "ms": 2000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "12-primary-goals-section" }
+    ],
+    "pauseMs": 1000
+  },
+  {
+    "id": "goals-select-energy-sleep-stress",
+    "narration": "When you click those goals, look at Possible product fit on the right. That section updates based on what they care about.",
+    "actions": [
+      { "type": "highlight", "target": "goal-energy", "label": "Selecting: Energy", "dim": false },
+      { "type": "wait", "ms": 600 },
+      { "type": "click", "target": "goal-energy" },
+      { "type": "wait", "ms": 500 },
+      { "type": "clear_highlight" },
+      { "type": "highlight", "target": "goal-sleep", "label": "Selecting: Sleep", "dim": false },
+      { "type": "wait", "ms": 600 },
+      { "type": "click", "target": "goal-sleep" },
+      { "type": "wait", "ms": 500 },
+      { "type": "clear_highlight" },
+      { "type": "highlight", "target": "goal-stress", "label": "Selecting: Stress", "dim": false },
+      { "type": "wait", "ms": 600 },
+      { "type": "click", "target": "goal-stress" },
+      { "type": "wait", "ms": 800 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "13-goals-selected" },
+      { "type": "scroll_to", "target": "possible-product-fit-panel", "block": "center" },
+      { "type": "highlight", "target": "possible-product-fit-panel", "label": "Possible product fit — updated for Energy, Sleep, Stress" },
+      { "type": "wait", "ms": 2500 },
+      { "type": "verify", "target": "possible-product-fit-panel", "verifyType": "visible" },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "14-product-fit-updated" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "builder-summary",
+    "narration": "So the Builder tab answers four things: Who is presenting? Who are we talking to? What did their scan show? What do they care about? Then the right side gives you the conversation.",
+    "actions": [
+      { "type": "scroll_to", "target": "top" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "screenshot", "name": "15-builder-summary-top" },
+      { "type": "scroll_to", "target": "recommended-next-step-panel", "block": "end" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "screenshot", "name": "16-builder-summary-bottom" }
+    ],
+    "pauseMs": 2000
+  },
+  {
+    "id": "script-tab",
+    "narration": "Now click Script at the top. This is where the app turns everything from the Builder screen into a simple demo script.",
+    "actions": [
+      { "type": "scroll_to", "target": "top" },
+      { "type": "wait", "ms": 500 },
+      { "type": "highlight", "target": "script-tab", "label": "Script Tab", "dim": false },
+      { "type": "wait", "ms": 800 },
+      { "type": "click", "target": "script-tab" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "clear_highlight" },
+      { "type": "verify", "target": "app_visible", "verifyType": "visible" },
+      { "type": "screenshot", "name": "17-script-tab" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "script-flow",
+    "narration": "At the top, you'll see the five-part flow: Frame — set the expectation. Scan — run the 15-second scan. Explain — explain the color or score. Ask — ask questions based on the person and their goals. Next Step — offer the next action.",
+    "actions": [
+      { "type": "scroll_to", "target": "script-flow-panel", "block": "start" },
+      { "type": "highlight", "target": "script-flow-panel", "label": "Five-part flow: Frame → Scan → Explain → Ask → Next Step", "dim": false },
+      { "type": "wait", "ms": 3000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "18-script-five-part-flow" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "script-output",
+    "narration": "Below that, you'll see the actual script. This is what the presenter can read or practice from. It includes the presenter's name, the scan color explanation, the questions, the simple read of the score, the product fit, and the 30-day rescan next step. So the Script tab is basically the finished conversation.",
+    "actions": [
+      { "type": "scroll_to", "target": "script-output-panel", "block": "start" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "screenshot", "name": "19-script-output-top" },
+      { "type": "scroll_to", "target": "script-output-panel", "block": "end" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "screenshot", "name": "20-script-output-bottom" }
+    ],
+    "pauseMs": 2000
+  },
+  {
+    "id": "ai-prompt-tab",
+    "narration": "Now click AI Prompt. This tab gives you a ready-to-use prompt for an AI assistant. It already includes the audience type, scan color, main goals, and possible products. You would use this if you wanted AI to create a cleaner version of the conversation, a follow-up message, a 30-day rescan message, or a more polished version of the demo. The important part is that the prompt also includes the rules, so the AI keeps the language simple, warm, practical, and compliant.",
+    "actions": [
+      { "type": "scroll_to", "target": "top" },
+      { "type": "wait", "ms": 500 },
+      { "type": "highlight", "target": "ai-prompt-tab", "label": "AI Prompt Tab", "dim": false },
+      { "type": "wait", "ms": 800 },
+      { "type": "click", "target": "ai-prompt-tab" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "clear_highlight" },
+      { "type": "verify", "target": "app_visible", "verifyType": "visible" },
+      { "type": "screenshot", "name": "21-ai-prompt-tab-top" },
+      { "type": "scroll_to", "target": "ai-prompt-output-panel", "block": "end" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "screenshot", "name": "22-ai-prompt-tab-bottom" }
+    ],
+    "pauseMs": 2000
+  },
+  {
+    "id": "guardrails-tab",
+    "narration": "Now click Guardrails. This is the compliance screen.",
+    "actions": [
+      { "type": "scroll_to", "target": "top" },
+      { "type": "wait", "ms": 500 },
+      { "type": "highlight", "target": "guardrails-tab", "label": "Guardrails Tab", "dim": false },
+      { "type": "wait", "ms": 800 },
+      { "type": "click", "target": "guardrails-tab" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "clear_highlight" },
+      { "type": "verify", "target": "app_visible", "verifyType": "visible" },
+      { "type": "screenshot", "name": "23-guardrails-tab" }
+    ],
+    "pauseMs": 1000
+  },
+  {
+    "id": "guardrails-say-this",
+    "narration": "On the left, under Say this, these are the safe phrases to use: Wellness awareness tool. Carotenoid trend. Supports healthy habits. Helps track progress over time. Food, sleep, stress, and lifestyle matter first.",
+    "actions": [
+      { "type": "scroll_to", "target": "guardrails-say-this-panel", "block": "center" },
+      { "type": "highlight", "target": "guardrails-say-this-panel", "label": "✅ Say this — safe phrases" },
+      { "type": "wait", "ms": 3000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "24-guardrails-say-this" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "guardrails-avoid-this",
+    "narration": "On the right, under Avoid this, these are the phrases to stay away from: Diagnoses deficiency. Treats disease. Cures inflammation. Causes weight loss. Replaces bloodwork or medical care.",
+    "actions": [
+      { "type": "scroll_to", "target": "guardrails-avoid-this-panel", "block": "center" },
+      { "type": "highlight", "target": "guardrails-avoid-this-panel", "label": "❌ Avoid this — unsafe phrases" },
+      { "type": "wait", "ms": 3000 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "25-guardrails-avoid-this" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "guardrails-compliance",
+    "narration": "The yellow box at the bottom is the reminder that real deployment should use official approved claims, product labels, market rules, and compliance guidance. So this tab keeps the conversation safe.",
+    "actions": [
+      { "type": "scroll_to", "target": "guardrails-compliance-reminder", "block": "center" },
+      { "type": "highlight", "target": "guardrails-compliance-reminder", "label": "⚠️ Compliance Reminder" },
+      { "type": "wait", "ms": 2500 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "26-guardrails-compliance" }
+    ],
+    "pauseMs": 1500
+  },
+  {
+    "id": "tests-tab",
+    "narration": "Now click Tests. This is the app's internal check screen. It shows that the logic is working. When everything says Pass, that means the demo logic is working correctly.",
+    "actions": [
+      { "type": "scroll_to", "target": "top" },
+      { "type": "wait", "ms": 500 },
+      { "type": "highlight", "target": "tests-tab", "label": "Tests Tab", "dim": false },
+      { "type": "wait", "ms": 800 },
+      { "type": "click", "target": "tests-tab" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "clear_highlight" },
+      { "type": "verify", "target": "app_visible", "verifyType": "visible" },
+      { "type": "screenshot", "name": "27-tests-tab-top" },
+      { "type": "scroll_to", "target": "tests-pass-panel", "block": "center" },
+      { "type": "highlight", "target": "tests-pass-panel", "label": "✅ All Tests Passing" },
+      { "type": "wait", "ms": 2500 },
+      { "type": "clear_highlight" },
+      { "type": "screenshot", "name": "28-tests-pass" }
+    ],
+    "pauseMs": 2000
+  },
+  {
+    "id": "closing",
+    "narration": "So the simple flow is: Start in Builder. Choose the presenter, audience, scan color, and goals. Use the right side to guide the live conversation. Go to Script for the full talk track. Go to AI Prompt if you want AI to rewrite or extend it. Go to Guardrails to keep the language safe. Go to Tests to make sure the app logic is working. That's the app: it helps someone run a smarter scanner conversation without guessing what to say.",
+    "actions": [
+      { "type": "scroll_to", "target": "top" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "click", "target": "builder-tab" },
+      { "type": "wait", "ms": 1000 },
+      { "type": "scroll_to", "target": "top" },
+      { "type": "wait", "ms": 500 },
+      { "type": "screenshot", "name": "29-closing-overview" },
+      { "type": "record_marker", "marker": "end" }
+    ],
+    "pauseMs": 3000
+  }
+]

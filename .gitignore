@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+prysm-app/node_modules/
+
+# Local env files (contain keys/secrets)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Vercel directories
+.vercel/
+
+# Production builds
+dist/
+prysm-app/dist/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Demo agent output / recordings (prevent committing heavy media)
+demo-agent/output/screenshots/
+demo-agent/output/videos/
+demo-agent/output/report.json
+demo-agent/output/transcript.json
+demo-agent/output/audio/
+
+# Temporary screenshots & scratch files
+screenshot.png
+screenshot_final.png
+screenshot_browser.png
+scratch/
+.tempmediaStorage/
+.system_generated/
+*.ps1
