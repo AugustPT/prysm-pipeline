@@ -270,19 +270,35 @@ function LoginView({ onLogin }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
       setError("Please fill in all fields.");
       return;
     }
-    if (email.includes("@") && password.length >= 4) {
-      const name = email.split("@")[0];
-      const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
-      const role = email.toLowerCase().includes("manager") ? "manager" : "presenter";
-      onLogin({ email, name: capitalized, role });
-    } else {
-      setError("Please enter a valid email and a password (min. 4 characters).");
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        onLogin(data.user);
+      } else {
+        const errData = await res.json();
+        setError(errData.error || "Login failed.");
+      }
+    } catch (err) {
+      // Fallback for local Vite dev server running without serverless middleware
+      if (email.includes("@") && password.length >= 4) {
+        const name = email.split("@")[0];
+        const capitalized = name.charAt(0).toUpperCase() + name.slice(1);
+        const role = email.toLowerCase().includes("manager") ? "manager" : "presenter";
+        onLogin({ email, name: capitalized, role });
+      } else {
+        setError("Please enter a valid email and a password (min. 4 characters).");
+      }
     }
   };
 
@@ -1159,6 +1175,22 @@ export default function PrysmPipeline() {
     setLayoutMode(isMobileViewport ? "mobile-wizard" : "desktop");
   }, [isMobileViewport]);
 
+  // Fetch clients from Vercel Serverless API on mount
+  React.useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const res = await fetch("/api/clients");
+        if (res.ok) {
+          const data = await res.json();
+          setPipeline(data);
+        }
+      } catch (err) {
+        console.warn("API load failed, using localStorage fallback:", err.message);
+      }
+    };
+    fetchClients();
+  }, []);
+
   // Sync builder presenter name to profile
   const handlePresenterNameChange = (name) => {
     if (masqueradingPresenter) {
@@ -1327,7 +1359,7 @@ export default function PrysmPipeline() {
     };
   }, [masqueradingPresenter, presenterList, presenterName, profile]);
 
-  const handleSaveClient = () => {
+  const handleSaveClient = async () => {
     if (!newClientName) return;
     const activeName = masqueradingPresenter ? masqueradingPresenter.name : ((currentUser && currentUser.role === "manager") ? "Manager" : presenterName);
     const newRecord = {
@@ -1342,18 +1374,52 @@ export default function PrysmPipeline() {
       status: "Scan Completed",
       presenter: activeName
     };
-    savePipeline([newRecord, ...pipeline]);
+
+    // Optimistic local update
+    const updated = [newRecord, ...pipeline];
+    savePipeline(updated);
+
+    try {
+      await fetch("/api/clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newRecord)
+      });
+    } catch (err) {
+      console.warn("API save client failed, using local fallback:", err.message);
+    }
+
     setNewClientName("");
     setNewClientEmail("");
     setShowSaveModal(false);
   };
 
-  const handleDeleteClient = (id) => {
-    savePipeline(pipeline.filter(item => item.id !== id));
+  const handleDeleteClient = async (id) => {
+    const updated = pipeline.filter(item => item.id !== id);
+    savePipeline(updated);
+
+    try {
+      await fetch(`/api/clients?id=${id}`, {
+        method: "DELETE"
+      });
+    } catch (err) {
+      console.warn("API delete client failed, using local fallback:", err.message);
+    }
   };
 
-  const handleStatusChange = (id, newStatus) => {
-    savePipeline(pipeline.map(item => item.id === id ? { ...item, status: newStatus } : item));
+  const handleStatusChange = async (id, newStatus) => {
+    const updated = pipeline.map(item => item.id === id ? { ...item, status: newStatus } : item);
+    savePipeline(updated);
+
+    try {
+      await fetch("/api/clients", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, status: newStatus })
+      });
+    } catch (err) {
+      console.warn("API update status failed, using local fallback:", err.message);
+    }
   };
 
   const audience = getAudienceById(audienceId);
