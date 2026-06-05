@@ -374,319 +374,284 @@ function WizardView({
   setWizardStep,
   onSaveClient
 }) {
-  const steps = [
-    { num: 1, label: "Presenter" },
-    { num: 2, label: "Audience" },
-    { num: 3, label: "Scan Score" },
-    { num: 4, label: "Goals" },
-    { num: 5, label: "Script" }
-  ];
+  const [cardIndex, setCardIndex] = useState(1);
+  const [checkedQuestions, setCheckedQuestions] = useState({});
+
+  const handleToggleQuestion = (index) => {
+    setCheckedQuestions((prev) => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
 
   const handleNext = () => {
-    if (wizardStep < 5) setWizardStep(wizardStep + 1);
+    if (cardIndex < 3) setCardIndex(cardIndex + 1);
   };
 
   const handleBack = () => {
-    if (wizardStep > 1) setWizardStep(wizardStep - 1);
+    if (cardIndex > 1) setCardIndex(cardIndex - 1);
   };
 
   const handleReset = () => {
-    setWizardStep(1);
+    setCardIndex(1);
+    setCheckedQuestions({});
   };
 
+  const steps = [
+    { num: 1, label: "Opening Hook" },
+    { num: 2, label: "Core Questions" },
+    { num: 3, label: "Fit & Close" }
+  ];
+
   return (
-    <Card className="overflow-hidden">
-      {/* Wizard Progress Bar */}
-      <div className="border-b border-zinc-800 bg-zinc-950 p-4">
-        <div className="flex items-center justify-between text-xs text-zinc-400 mb-2">
-          <span>Step {wizardStep} of 5</span>
-          <span className="font-semibold text-emerald-400">{steps[wizardStep - 1].label}</span>
+    <div className="space-y-4">
+      {/* ── TOP COMPACT CONFIG PANEL ── */}
+      <Card className="bg-zinc-900/90 border border-zinc-800 p-4 space-y-3 shadow-lg">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center justify-between">
+          <div className="flex-1">
+            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Client Setting (Audience)</label>
+            <div className="relative">
+              <select 
+                value={audienceId}
+                onChange={(e) => {
+                  setAudienceId(e.target.value);
+                  setCheckedQuestions({});
+                }}
+                className="w-full appearance-none rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-emerald-400 cursor-pointer pr-8"
+              >
+                {audiences.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {iconMap[item.id]} {item.label}
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-zinc-500 text-[10px]">
+                ▼
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex-1 sm:ml-4">
+            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Presenter Name</label>
+            <input
+              type="text"
+              value={presenterName}
+              onChange={(e) => onPresenterNameChange(e.target.value)}
+              placeholder="Presenter Name"
+              className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm text-zinc-100 outline-none focus:border-emerald-400 animate-fade-in"
+            />
+          </div>
         </div>
-        <div className="h-1.5 w-full rounded-full bg-zinc-800 overflow-hidden">
+
+        {/* Scan Color Row */}
+        <div>
+          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Scan Score Color</label>
+          <div className="flex gap-1.5 bg-zinc-950 border border-zinc-850 rounded-xl p-1.5 overflow-x-auto no-scrollbar">
+            {Object.keys(scoreGuidance).map((item) => {
+              const bgColors = {
+                red: "bg-red-500",
+                orange: "bg-orange-500",
+                yellow: "bg-yellow-400",
+                green: "bg-emerald-500",
+                blue: "bg-cyan-500",
+                purple: "bg-purple-500"
+              };
+              const isSelected = score === item;
+              return (
+                <button
+                  key={item}
+                  onClick={() => setScore(item)}
+                  className={cx(
+                    "flex items-center gap-1 rounded-lg px-2.5 py-1 text-[11px] font-medium capitalize border transition cursor-pointer shrink-0",
+                    isSelected 
+                      ? "border-emerald-400 bg-emerald-400/10 text-emerald-300 font-semibold" 
+                      : "border-transparent bg-transparent text-zinc-500 hover:text-zinc-300"
+                  )}
+                >
+                  <span className={cx("h-2.5 w-2.5 rounded-full", bgColors[item])} />
+                  {item}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Goals Pill Row */}
+        <div>
+          <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider block mb-1">Client Goals</label>
+          <div className="flex gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+            {goals.map((goal) => {
+              const isSelected = selectedGoals.includes(goal);
+              return (
+                <button
+                  key={goal}
+                  onClick={() => toggleGoal(goal)}
+                  className={cx(
+                    "rounded-full px-2.5 py-1 text-[10px] border transition cursor-pointer shrink-0",
+                    isSelected 
+                      ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-semibold" 
+                      : "border-zinc-800 bg-zinc-950 text-zinc-500 hover:border-zinc-700"
+                  )}
+                >
+                  {goal} {isSelected && "✓"}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </Card>
+
+      {/* ── CUE CARD DISPLAY ── */}
+      <Card className="bg-zinc-900/80 border border-zinc-800 p-5 md:p-6 shadow-xl relative overflow-hidden">
+        {/* Card Progress Indicator */}
+        <div className="flex items-center justify-between text-xs text-zinc-500 mb-3 border-b border-zinc-850 pb-2">
+          <span className="font-semibold text-emerald-400 uppercase tracking-wider text-[10px]">{steps[cardIndex - 1].label}</span>
+          <span>Card {cardIndex} of 3</span>
+        </div>
+
+        <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden mb-5">
           <div 
             className="h-full bg-emerald-400 transition-all duration-300 shadow-md shadow-emerald-400/20"
-            style={{ width: `${(wizardStep / 5) * 100}%` }}
+            style={{ width: `${(cardIndex / 3) * 100}%` }}
           />
         </div>
-        {/* Step dots for quick visualization */}
-        <div className="flex justify-between mt-3 px-1">
-          {steps.map((s) => (
-            <button 
-              key={s.num} 
-              onClick={() => setWizardStep(s.num)}
-              className={cx(
-                "h-6 px-2.5 rounded-full text-[10px] font-semibold transition cursor-pointer flex items-center justify-center",
-                wizardStep === s.num 
-                  ? "bg-emerald-400 text-zinc-950 animate-pulse" 
-                  : wizardStep > s.num
-                    ? "bg-zinc-800 text-emerald-400 border border-emerald-400/20"
-                    : "bg-zinc-900 text-zinc-500"
-              )}
-            >
-              {s.num}
-            </button>
-          ))}
-        </div>
-      </div>
 
-      {/* Step Content */}
-      <div className="p-5 md:p-6 min-h-[320px] flex flex-col justify-between">
-        <div className="space-y-5">
-          {/* STEP 1: PRESENTER */}
-          {wizardStep === 1 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="space-y-1">
-                <h3 className="text-xl font-semibold text-zinc-100">Presenter Profile</h3>
-                <p className="text-sm text-zinc-400">Confirm who is presenting. This name will automatically populate the sales scripts.</p>
-              </div>
-              <div className="space-y-2">
-                <FieldLabel>Presenter name</FieldLabel>
-                <input 
-                  value={presenterName} 
-                  onChange={(e) => onPresenterNameChange(e.target.value)} 
-                  className="w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-zinc-100 outline-none focus:border-emerald-400"
-                  placeholder="Bobby"
-                />
-              </div>
-              <div className="rounded-xl bg-zinc-950 border border-zinc-800 p-4 space-y-2">
-                <p className="text-xs text-zinc-400">Current Scanner: <span className="font-semibold text-zinc-200">{profile.scannerModel}</span></p>
-                <p className="text-xs text-zinc-400">Monthly Scan Goal: <span className="font-semibold text-zinc-200">{profile.scanGoal} scans</span></p>
-              </div>
-            </div>
-          )}
-
-          {/* STEP 2: AUDIENCE */}
-          {wizardStep === 2 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="space-y-1">
-                <h3 className="text-xl font-semibold text-zinc-100">Who are you talking to?</h3>
-                <p className="text-sm text-zinc-400">Select the client setting to adapt the conversation structure.</p>
-              </div>
-              <div className="grid grid-cols-1 gap-2 max-h-[280px] overflow-y-auto pr-1">
-                {audiences.map((item) => (
-                  <button 
-                    key={item.id} 
-                    onClick={() => {
-                      setAudienceId(item.id);
-                      // Auto progress to next step for buttery smooth mobile flow
-                      setTimeout(() => setWizardStep(3), 250);
-                    }}
-                    className={cx(
-                      "flex items-center gap-3 rounded-xl border p-3.5 text-left text-sm transition cursor-pointer", 
-                      audienceId === item.id 
-                        ? "border-emerald-400 bg-emerald-400/10 text-emerald-400 font-semibold" 
-                        : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700"
-                    )}
-                  >
-                    <span className="text-xl">{iconMap[item.id]}</span>
-                    <div className="flex-1">
-                      <p className="font-medium leading-none">{item.label}</p>
-                      <p className="text-[11px] text-zinc-500 mt-1 truncate max-w-[260px]">{item.frame}</p>
-                    </div>
-                    {audienceId === item.id && <span className="text-emerald-400 text-xs">✓ selected</span>}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 3: SCAN COLOR */}
-          {wizardStep === 3 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="space-y-1">
-                <h3 className="text-xl font-semibold text-zinc-100">Scan Color Result</h3>
-                <p className="text-sm text-zinc-400">Run the physical 15-second scan, then choose the resulting antioxidant color band.</p>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.keys(scoreGuidance).map((item) => {
-                  const colors = {
-                    red: "border-red-500/20 text-red-400 bg-red-950/20 hover:border-red-400",
-                    orange: "border-orange-500/20 text-orange-400 bg-orange-950/20 hover:border-orange-400",
-                    yellow: "border-yellow-500/20 text-yellow-300 bg-yellow-950/20 hover:border-yellow-300",
-                    green: "border-emerald-500/20 text-emerald-400 bg-emerald-950/20 hover:border-emerald-400",
-                    blue: "border-cyan-500/20 text-cyan-400 bg-cyan-950/20 hover:border-cyan-400",
-                    purple: "border-purple-500/20 text-purple-400 bg-purple-950/20 hover:border-purple-400"
-                  };
-                  const activeColors = {
-                    red: "border-red-400 bg-red-500/20 text-red-200 font-bold",
-                    orange: "border-orange-400 bg-orange-500/20 text-orange-200 font-bold",
-                    yellow: "border-yellow-300 bg-yellow-500/20 text-yellow-100 font-bold",
-                    green: "border-emerald-400 bg-emerald-500/20 text-emerald-200 font-bold",
-                    blue: "border-cyan-400 bg-cyan-500/20 text-cyan-200 font-bold",
-                    purple: "border-purple-400 bg-purple-500/20 text-purple-200 font-bold"
-                  };
-                  return (
-                    <button 
-                      key={item} 
-                      onClick={() => {
-                        setScore(item);
-                        setTimeout(() => setWizardStep(4), 250);
-                      }}
-                      className={cx(
-                        "rounded-xl border p-4 text-center text-sm capitalize transition cursor-pointer",
-                        score === item ? activeColors[item] : colors[item]
-                      )}
-                    >
-                      <div className="flex flex-col items-center gap-1.5">
-                        <span className={cx("h-4 w-4 rounded-full shadow-inner", 
-                          item === "red" ? "bg-red-500" :
-                          item === "orange" ? "bg-orange-500" :
-                          item === "yellow" ? "bg-yellow-400" :
-                          item === "green" ? "bg-emerald-500" :
-                          item === "blue" ? "bg-cyan-500" : "bg-purple-500"
-                        )} />
-                        {item}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 4: PRIMARY GOALS */}
-          {wizardStep === 4 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="space-y-1">
-                <h3 className="text-xl font-semibold text-zinc-100">Primary Goals</h3>
-                <p className="text-sm text-zinc-400">Select what the client wants to improve. We'll use this to tailor recommendations.</p>
-              </div>
-              <div className="flex flex-wrap gap-2 max-h-[220px] overflow-y-auto pr-1">
-                {goals.map((goal) => (
-                  <button 
-                    key={goal} 
-                    onClick={() => toggleGoal(goal)} 
-                    className={cx(
-                      "rounded-full border px-3 py-2 text-xs transition cursor-pointer", 
-                      selectedGoals.includes(goal) 
-                        ? "border-emerald-400 bg-emerald-400/20 text-emerald-400 font-semibold" 
-                        : "border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700"
-                    )}
-                  >
-                    {goal} {selectedGoals.includes(goal) && "✓"}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* STEP 5: TIMELINE SCRIPT */}
-          {wizardStep === 5 && (
-            <div className="space-y-4 animate-fade-in">
-              <div className="space-y-1 border-b border-zinc-800 pb-3 flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-semibold text-zinc-100">Generated Script</h3>
-                  <p className="text-[11px] text-zinc-400">Read this timeline flow to guide the presentation.</p>
+        {/* Card Content Block */}
+        <div className="min-h-[260px] flex flex-col justify-between">
+          <div className="space-y-4">
+            
+            {/* CARD 1: THE OPENING HOOK */}
+            {cardIndex === 1 && (
+              <div className="space-y-4 animate-fade-in">
+                <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-4 space-y-2">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Conversation Context</p>
+                  <p className="text-zinc-200 text-xs leading-relaxed font-sans">{audience.frame}</p>
                 </div>
-                <div className="flex items-center gap-1 bg-zinc-950 border border-zinc-800 rounded-lg px-2.5 py-1">
-                  <span className="text-xs">{iconMap[audienceId]}</span>
-                  <span className="capitalize text-[11px] font-bold text-zinc-200">{score}</span>
-                </div>
-              </div>
-
-              {/* Stacked Vertical Timeline Script */}
-              <div className="space-y-4 max-h-[360px] overflow-y-auto pr-1 text-sm font-sans leading-relaxed">
-                
-                {/* 1. Opener */}
-                <div className="relative pl-6 border-l border-zinc-800">
-                  <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-emerald-400 border border-zinc-950 animate-pulse" />
-                  <p className="font-semibold text-emerald-400 text-xs uppercase tracking-wider">1. Open the Conversation</p>
-                  <p className="text-zinc-500 text-xs mt-0.5 italic">{audience.frame}</p>
-                  <div className="mt-2 rounded-xl bg-zinc-950 border border-zinc-850 p-3 text-zinc-100 text-xs leading-relaxed font-sans shadow-inner">
+                <div className="space-y-2">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Say This (Opener):</p>
+                  <p className="text-zinc-100 text-lg font-sans font-medium leading-relaxed bg-zinc-950/40 border border-zinc-900 rounded-xl p-4 shadow-inner">
                     "{audience.opener}"
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* CARD 2: TAILORED QUESTIONS */}
+            {cardIndex === 2 && (
+              <div className="space-y-3 animate-fade-in">
+                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Ask These Questions (Check off as you ask):</p>
+                <div className="space-y-2 max-h-[260px] overflow-y-auto pr-1">
+                  {audience.questions.map((q, idx) => {
+                    const isChecked = !!checkedQuestions[idx];
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => handleToggleQuestion(idx)}
+                        className={cx(
+                          "w-full flex items-start gap-3 rounded-xl border p-3 text-left text-xs transition cursor-pointer",
+                          isChecked 
+                            ? "border-emerald-500 bg-emerald-500/10 text-zinc-100 font-semibold animate-pulse" 
+                            : "border-zinc-800 bg-zinc-950/60 text-zinc-300 hover:border-zinc-700"
+                        )}
+                      >
+                        <span className={cx(
+                          "flex h-4 w-4 shrink-0 items-center justify-center rounded border text-[10px] font-bold mt-0.5",
+                          isChecked ? "bg-emerald-400 border-emerald-400 text-zinc-950" : "border-zinc-700 text-transparent"
+                        )}>
+                          ✓
+                        </span>
+                        <div>
+                          <span className={cx("font-bold text-[10px] uppercase tracking-wider block mb-0.5", isChecked ? "text-emerald-400" : "text-zinc-500")}>
+                            Question {idx + 1}
+                          </span>
+                          <p className={cx("font-sans leading-relaxed", isChecked && "line-through text-zinc-500")}>{q}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* CARD 3: THE FIT & CLOSE */}
+            {cardIndex === 3 && (
+              <div className="space-y-3 animate-fade-in max-h-[300px] overflow-y-auto pr-1">
+                {/* Score meaning */}
+                <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3.5 space-y-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className={cx("h-2.5 w-2.5 rounded-full shadow-inner", 
+                      score === "red" ? "bg-red-500" :
+                      score === "orange" ? "bg-orange-500" :
+                      score === "yellow" ? "bg-yellow-400" :
+                      score === "green" ? "bg-emerald-500" :
+                      score === "blue" ? "bg-cyan-500" : "bg-purple-500"
+                    )} />
+                    <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Score Meaning ({score})</p>
                   </div>
+                  <p className="text-zinc-200 text-xs font-sans leading-relaxed">{scoreGuidance[score]}</p>
                 </div>
 
-                {/* 2. Score Guidance */}
-                <div className="relative pl-6 border-l border-zinc-800">
-                  <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-emerald-400 border border-zinc-950" />
-                  <p className="font-semibold text-emerald-400 text-xs uppercase tracking-wider">2. Explain the Score</p>
-                  <p className="text-zinc-500 text-xs mt-0.5 italic">Tone: {scoreTone[score]}</p>
-                  <div className="mt-2 rounded-xl bg-zinc-950 border border-zinc-850 p-3 text-zinc-200 text-xs leading-relaxed font-sans shadow-inner">
-                    {scoreGuidance[score]}
-                  </div>
-                </div>
-
-                {/* 3. Core Questions */}
-                <div className="relative pl-6 border-l border-zinc-800">
-                  <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-emerald-400 border border-zinc-950" />
-                  <p className="font-semibold text-emerald-400 text-xs uppercase tracking-wider">3. Ask Tailored Questions</p>
-                  <div className="mt-2 space-y-1.5">
-                    {audience.questions.map((q, idx) => (
-                      <div key={idx} className="flex gap-2 rounded-lg bg-zinc-950/60 border border-zinc-900 p-2.5 text-xs text-zinc-200 font-sans">
-                        <span className="text-emerald-400 font-bold">{idx + 1}</span>
-                        <p>{q}</p>
-                      </div>
+                {/* Recommendations */}
+                <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3.5 space-y-2">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Possible Product Fit</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {recommendations.map((item) => (
+                      <span key={item} className="bg-zinc-800 text-zinc-300 rounded px-2.5 py-1 text-[10px] border border-zinc-700">{item}</span>
                     ))}
                   </div>
                 </div>
 
-                {/* 4. Product recommendations & next step */}
-                <div className="relative pl-6">
-                  <div className="absolute -left-1.5 top-1 h-3 w-3 rounded-full bg-emerald-400 border border-zinc-950" />
-                  <p className="font-semibold text-emerald-400 text-xs uppercase tracking-wider">4. Next Step & Product Fit</p>
-                  <div className="mt-2 space-y-2">
-                    <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3 text-xs text-zinc-200 font-sans shadow-inner">
-                      <p className="font-medium text-emerald-200 mb-1">Action Step:</p>
-                      {audience.nextStep}
-                    </div>
-                    <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3 text-xs font-sans shadow-inner">
-                      <p className="font-medium text-zinc-400 mb-1.5">Tailored recommendations:</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {recommendations.map((item) => (
-                          <span key={item} className="bg-zinc-800 text-zinc-300 rounded px-2 py-0.5 text-[10px] border border-zinc-700">{item}</span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                {/* Next Step */}
+                <div className="rounded-xl bg-zinc-950 border border-zinc-850 p-3.5 space-y-1.5">
+                  <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider leading-none">Recommended Next Step</p>
+                  <p className="text-zinc-200 text-xs font-sans leading-relaxed">{audience.nextStep}</p>
                 </div>
-
               </div>
+            )}
 
-              {/* CTAs */}
-              <div className="pt-3 border-t border-zinc-800 flex gap-2">
-                <button 
-                  onClick={onSaveClient}
-                  className="flex-1 rounded-xl bg-emerald-400 py-3 text-center text-xs font-bold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer"
-                >
-                  Save Client to Pipeline
-                </button>
-                <button 
-                  onClick={handleReset}
-                  className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3 text-center text-xs font-bold text-zinc-300 hover:bg-zinc-800 transition cursor-pointer"
-                >
-                  New Scan
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Navigation Actions */}
-        {wizardStep < 5 && (
-          <div className="mt-6 pt-4 border-t border-zinc-800/80 flex items-center justify-between">
-            <button 
-              onClick={handleBack} 
-              disabled={wizardStep === 1}
-              className={cx(
-                "rounded-xl px-4 py-2.5 text-xs font-semibold border transition cursor-pointer",
-                wizardStep === 1 
-                  ? "border-zinc-900 bg-zinc-950 text-zinc-600 cursor-not-allowed" 
-                  : "border-zinc-800 bg-zinc-950 text-zinc-300 hover:border-zinc-700"
-              )}
-            >
-              Back
-            </button>
-            <button 
-              onClick={handleNext}
-              className="rounded-xl bg-emerald-400 px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer"
-            >
-              {wizardStep === 4 ? "Generate Script" : "Continue"}
-            </button>
           </div>
-        )}
-      </div>
-    </Card>
+
+          {/* ── CARD BOTTOM ACTIONS ── */}
+          <div className="mt-6 pt-4 border-t border-zinc-800/80 flex items-center justify-between gap-3">
+            {cardIndex > 1 ? (
+              <button
+                onClick={handleBack}
+                className="rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-2.5 text-xs font-semibold text-zinc-300 hover:border-zinc-700 transition cursor-pointer"
+              >
+                ← Back
+              </button>
+            ) : (
+              <div /> // spacer
+            )}
+
+            {cardIndex < 3 ? (
+              <button
+                onClick={handleNext}
+                className="rounded-xl bg-emerald-400 px-5 py-2.5 text-xs font-bold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer"
+              >
+                {cardIndex === 1 ? "Start Assessment →" : "See Recommendations →"}
+              </button>
+            ) : (
+              <div className="flex gap-2 flex-1">
+                <button
+                  onClick={onSaveClient}
+                  className="flex-1 rounded-xl bg-emerald-400 py-2.5 text-center text-xs font-bold text-zinc-950 hover:bg-emerald-300 transition cursor-pointer shadow-md shadow-emerald-400/5"
+                >
+                  Save Client
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="rounded-xl border border-zinc-850 bg-zinc-900 px-3 py-2.5 text-center text-xs font-semibold text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200 transition cursor-pointer"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
+
+        </div>
+      </Card>
+    </div>
   );
 }
 

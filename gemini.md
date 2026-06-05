@@ -1,48 +1,41 @@
-# Goal: Mobile-First Step-by-Step Wizard Interface
+# Frictionless Sales Companion — Cue Card Interface
 
-Implement a mobile-first wizard layout for the **Prysm Pipeline** application that guides the salesperson through the client scanning process one step at a time, displaying only what is necessary on the screen per step.
+Applying **First Principles** and **Occam's Razor** to solve the salesperson's friction in real-time client presentations.
 
-## Ultimate Goal
-Make it extremely easy for a salesperson to run a client scan and presentation on a mobile phone (or tablet) in real-time, step-by-step, without scrolling through a large desktop dashboard.
+## First Principles Breakdown
+1. **Core Objective**: The salesperson needs to know exactly what to say to the client *at the current moment of the conversation*, without losing eye contact or looking distracted by the phone.
+2. **Current Friction**: The 5-step wizard forces the salesperson to click through set-up steps (Presenter info, Audience selection, Color selection, Goal selection) before they see any script. They are "fiddling" with setup instead of engaging.
+3. **The Simplest Solution (Occam's Razor)**:
+   - Put **all configurations** (Audience, Scan Color, Goals) on a single compact header panel at the top of the mobile screen. The seller can configure a scan in under 5 seconds with 3 taps.
+   - Display the generated script as **3 High-Contrast Cue Cards** that show only one conversational phase at a time:
+     - **Card 1: The Hook (Opener)** — Huge, clear, readable opening line.
+     - **Card 2: The Assessment (Questions)** — An interactive checklist of the 5 tailored questions. The seller can tap to check them off as they speak.
+     - **Card 3: The Recommendation (Close & Products)** — Tailored score meaning, product recommendations, next step, and the "Save Client" CTA.
 
 ---
 
 ## Design Specifications
 
-1. **Responsive Viewport Detection**:
-   - Detect screen width dynamically using React `window.innerWidth` state.
-   - Default to **Mobile Wizard View** on screen widths below `768px` (mobile & tablet).
-   - Default to **Desktop Grid View** on screen widths `768px` and above.
-   - Include a visual toggle (`[Desktop View] [Mobile Wizard]`) in the app header so users on any screen size can preview or choose their preferred layout.
+1. **Top Quick Config Drawer**:
+   - **Audience Menu**: A styled dropdown select menu (`select` element with modern styling) to choose the client type instantly.
+   - **Scan Color Row**: A compact horizontal row of colored circle buttons representing the 6 carotenoid color bands.
+   - **Goals Row**: A horizontal swipeable list of pill badges for the primary goals.
 
-2. **The 5-Step Wizard Flow**:
-   - **Step 1: Presenter Profile** — Set who is running the scan.
-   - **Step 2: Client Setting (Audience)** — Select client type (Gym, Athlete, BNI, etc.).
-   - **Step 3: Scan Score Color** — Run the 15-second scan and click the color result.
-   - **Step 4: Client Primary Goals** — Choose client goals (Energy, Sleep, Stress, etc.).
-   - **Step 5: Generated Presentation Script** — Display the personalized presentation script in a timeline format:
-     - **Timeline step 1: Opening line** (framed correctly).
-     - **Timeline step 2: 5 core questions** (with checkmark interactions).
-     - **Timeline step 3: Score guidance** (explaining the carotenoid color score).
-     - **Timeline step 4: Product recommendation & Next step**.
-     - **Action CTA**: "Save Client to Pipeline" modal launcher.
-     - **Action CTA**: "Reset Wizard / Start New Scan" to repeat the flow.
-
-3. **Premium Aesthetics & Navigation**:
-   - Keep dark mode glassmorphism styles (`bg-zinc-900/80 border border-zinc-800 backdrop-blur-md`).
-   - Add a sticky progress bar at the top of the wizard container showing `Step X of 5` with a glowing green progress bar.
-   - Large, finger-friendly buttons with hover animations and clean active styling.
-   - Bottom step navigation (`[Back]` and `[Next]` / `[Generate Script]`).
-   - Clean, touch-friendly tab bar layout on mobile.
+2. **Interactive Presentation Cue Cards**:
+   - A single premium glassmorphic card representing the active card (`cardIndex` state: `1` to `3`).
+   - A progress bar showing `Card X of 3` with glowing green status.
+   - Large, clear, readable typography (`text-base` / `text-lg` / `text-xl`) to make it easily readable at a glance from arm's length.
+   - **Bottom Navigation Bar**: Clean, sticky buttons at the bottom of the card (`[Previous Card]` and `[Next Card]`).
+   - **Save & Reset**: On Card 3, display the primary CTA buttons: `[Save Client to Pipeline]` and `[Reset Scan]`.
 
 ---
 
 ## Technical Tasks
 
-- [ ] Add state management for `isMobileMode` (toggled by user or layout width detection) and `wizardStep` (active step 1-5).
-- [ ] Implement responsive viewport event listeners in `App.jsx`.
-- [ ] Build the step-by-step Wizard components within the Builder tab view in `App.jsx`.
-- [ ] Structure the step 5 script output as an interactive timeline script viewer.
-- [ ] Verify that existing Playwright walkthrough cues (`npm run demo:run`) continue to pass 100% since they run in landscape mode (1920x1080) which will default to the Desktop View.
-- [ ] Take screenshots of the mobile-first wizard and pipeline dashboard to prove implementation.
+- [ ] Modify `WizardView` in `App.jsx` to be a single-screen **Frictionless Sales Companion** view.
+- [ ] Add state `cardIndex` (integer: `1` to `3`) to track the active presentation cue card.
+- [ ] Implement the Quick Config Bar at the top of the companion card (Audience dropdown, Color circle row, Goals multi-select pills).
+- [ ] Build the interactive checklist for the 5 questions on Card 2 (allowing the seller to check them off as they go).
+- [ ] Verify that existing Playwright walkthrough cues continue to pass 100% (runs in landscape desktop mode).
+- [ ] Take screenshots of the new single-screen mobile design and the interactive cue cards.
 - [ ] Commit changes to Git and deploy to production on Vercel.
